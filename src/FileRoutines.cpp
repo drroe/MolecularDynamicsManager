@@ -3,6 +3,7 @@
 #include <cstring>
 #include <cstdlib> // getenv
 #include <ctime> // time_t
+#include <filesystem>
 #include <sys/stat.h> // mkdir
 #include <unistd.h> // getcwd 
 //#if ndef __PGI
@@ -12,6 +13,19 @@
 #include "Messages.h"
 
 using namespace Messages;
+
+/** \return the absolute path of a given filename */
+std::string FileRoutines::AbsPath(std::string const& filenameIn) {
+  std::filesystem::path relativePath = filenameIn;
+
+  std::filesystem::path absolutePath = std::filesystem::absolute(relativePath);
+
+  if (std::filesystem::exists(relativePath)) {
+    std::filesystem::path canonicalPath = std::filesystem::canonical(relativePath);
+    return canonicalPath.string();
+  } else
+    return absolutePath.string();
+}
 
 // tildeExpansion()
 /** Use glob.h to perform tilde expansion on a filename, returning the

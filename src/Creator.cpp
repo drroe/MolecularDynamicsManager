@@ -48,6 +48,17 @@ std::string Creator::TopologyName() const {
   return topname;
 }
 
+/** \return The Absolute path of the first topology name. */
+std::string Creator::Topology_AbsolutePath() const {
+  std::string topname;
+  if (Dims_.HasDim(ReplicaDimension::TOPOLOGY)) {
+    TopologyDim const& topdim = static_cast<TopologyDim const&>( Dims_.Dim(ReplicaDimension::TOPOLOGY) );
+    topname = topdim.TopName( 0 );
+  } else 
+    topname = top_file_;
+  return AbsPath( topname );
+}
+
 /** \return Topology at specified index in topology dimension, or MD topology file if no dim. */
 std::string Creator::TopologyName(RepIndexArray const& Indices) const {
   std::string topname;

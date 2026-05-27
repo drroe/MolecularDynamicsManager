@@ -61,6 +61,8 @@ class Creator {
     // ----- File names --------------------------
     /// \return Name of first topology file from the top_dim_ dimension or MD top file.
     std::string TopologyName() const;
+    /// \return Absolute path of topology
+    std::string Topology_AbsolutePath() const;
     /// \return Name of topology at specified index in top_dim_ dimension (or MD top file).
     std::string TopologyName(RepIndexArray const&) const;
     /// \return Name of input coordinates file/directory.

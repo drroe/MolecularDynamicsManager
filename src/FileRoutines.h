@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 namespace FileRoutines {
+/// \return absolute path of given filename
+std::string AbsPath(std::string const&);
 /// Expand any tildes in the given filename
 std::string tildeExpansion(std::string const&);
 /// Array of strings
