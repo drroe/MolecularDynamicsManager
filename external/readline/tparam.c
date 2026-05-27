@@ -38,6 +38,10 @@ char *realloc ();
 #define bcopy(s, d, n) memcpy ((d), (s), (n))
 #endif
 
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
 #endif /* not emacs */
 
 #ifndef NULL
@@ -313,7 +317,7 @@ tparam1 (string, outstring, len, up, left, argp)
   return outstring;
 }
 
-#ifdef DEBUG
+/*#ifdef DEBUG
 
 main (argc, argv)
      int argc;
@@ -329,4 +333,4 @@ main (argc, argv)
   return 0;
 }
 
-#endif /* DEBUG */
+#endif*/ /* DEBUG */
