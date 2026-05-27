@@ -63,7 +63,7 @@ int CpptrajInterface::GetTrajFrames(std::string const& topname, std::string cons
     ErrorMsg("Getting number of frames from cpptraj failed.\n");
     return -1;
   }
-  //Msg("DEBUG: '%s'\n", buffer);
+  //Msg("DEBUG: '%s'\n", ptr);
   int nframes = 0;
 
   if (ptr[0] == 'F' && ptr[6] == ':') {
