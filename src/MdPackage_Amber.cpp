@@ -880,9 +880,10 @@ RunStatus MdPackage_Amber::RunCurrentStatus(std::vector<std::string> const& file
       ErrorMsg("Could not read '%s'\n", output_name.c_str());
     }
   }
-  if (top_name.empty())
+  // Prefer the default top name. MDOUT top name can be truncated.
+  if (!default_top.empty())
     top_name = default_top;
-  //Msg("DEBUG: RunCurrentStatus(): Top= %s  Traj= %s\n", top_name.c_str(), traj_name.c_str());
+  Msg("DEBUG: RunCurrentStatus(): Top= %s  Traj= %s\n", top_name.c_str(), traj_name.c_str());
   if (!top_name.empty() && !traj_name.empty()) {
     if (read_traj_nframes( currentStat, top_name, traj_name )) {
       ErrorMsg("Could not read # frames from '%s'\n", traj_name.c_str());
