@@ -27,9 +27,9 @@ class Run {
     /// \return Last modified time
     long int LastModified() const { return t_last_mod_; }
     /// Setup existing directory - run dir name
-    int SetupExisting(std::string const&, MdPackage*, Queue const&);
+    int SetupExisting(std::string const&, MdPackage*, Queue const&, std::string const&);
     /// Refresh run status
-    int Refresh(MdPackage*, Queue const&);
+    int Refresh(MdPackage*, Queue const&, std::string const&);
     /// Create new directory - rundir, creator, mdpackage, start #, run #, prev run dir
     int CreateNew(std::string const&, Creator const&, Submitter const&, MdPackage*, int, int, std::string const&);
     /// Submit run
@@ -40,7 +40,7 @@ class Run {
     /// Update time last modified from files in array
     int updateTimeLastModified(std::vector<std::string> const&);
     /// Perform all actions needed to refresh run status
-    int internalRefresh(MdPackage*, Queue const&, std::vector<std::string> const&);
+    int internalRefresh(MdPackage*, Queue const&, std::vector<std::string> const&, std::string const&);
 
     std::string rundir_;   ///< Run directory. May be relative.
     std::string setupDir_; ///< Directory in which SetupRun gets invoked. Should be absolute run dir

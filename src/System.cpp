@@ -215,7 +215,7 @@ int System::FindRuns(QueueArray& queues) {
     if (debug_ > 0) Msg("  Directory: %s\n", it->c_str());
     // Set up the directory
     Runs_.AddRun( Run() );
-    if (Runs_.Set_back().SetupExisting( *it, mdInterface_.Package(), submitter_.LocalQueue() )) {
+    if (Runs_.Set_back().SetupExisting( *it, mdInterface_.Package(), submitter_.LocalQueue(), creator_.TopologyName() )) {
       ErrorMsg("Setting up existing run '%s' failed.\n", it->c_str());
       return 1;
     }
@@ -302,7 +302,7 @@ int System::RefreshCurrentRuns(bool verbose) {
   {
     if (verbose)
       Msg("  Refreshing directory '%s'\n", run->RunDirName().c_str());
-    if (run->Refresh( mdInterface_.Package(), submitter_.LocalQueue() )) {
+    if (run->Refresh( mdInterface_.Package(), submitter_.LocalQueue(), creator_.TopologyName() )) {
       ErrorMsg("Refreshing existing run '%s'\n", run->RunDirName().c_str());
       return -1;
     }
@@ -325,7 +325,7 @@ int System::RefreshSpecifiedRun(int ridx) {
     ErrorMsg("Could not change to system directory %s/%s\n", topDir_.c_str(), dirname_.c_str());
     return 1;
   }
-  Runs_.Set_Run(ridx).Refresh( mdInterface_.Package(), submitter_.LocalQueue() );
+  Runs_.Set_Run(ridx).Refresh( mdInterface_.Package(), submitter_.LocalQueue(), creator_.TopologyName() );
   // Change directory back
   if (ChangeToSystemDir()) return 1;
   return 0;

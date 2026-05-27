@@ -39,8 +39,8 @@ class MdPackage {
     virtual void PackageInfo() const = 0;
     /// Create package-specific input files
     virtual int CreateInputFiles(Creator const&, Submitter const&, int, int, std::string const&, std::string const&) const = 0;
-    /// \return Information on an existing run from output files
-    virtual RunStatus RunCurrentStatus(std::vector<std::string> const&) const = 0;
+    /// \return Information on an existing run from output files. Provide optional topology file name.
+    virtual RunStatus RunCurrentStatus(std::vector<std::string> const&, std::string const&) const = 0;
     // ---------------------------------
     /// Set debug level
     void SetDebug(int d) { debug_ = d; }

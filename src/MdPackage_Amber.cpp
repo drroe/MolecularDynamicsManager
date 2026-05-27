@@ -826,7 +826,7 @@ int MdPackage_Amber::read_traj_nframes(RunStatus& currentStatus, std::string con
 }
 
 /** \return Info on a current run. */
-RunStatus MdPackage_Amber::RunCurrentStatus(std::vector<std::string> const& files) const {
+RunStatus MdPackage_Amber::RunCurrentStatus(std::vector<std::string> const& files, std::string const& default_top) const {
   std::string output_name;
   std::string traj_name;
   bool has_input = false;
@@ -880,6 +880,8 @@ RunStatus MdPackage_Amber::RunCurrentStatus(std::vector<std::string> const& file
       ErrorMsg("Could not read '%s'\n", output_name.c_str());
     }
   }
+  if (top_name.empty())
+    top_name = default_top;
 
   if (!top_name.empty() && !traj_name.empty()) {
     if (read_traj_nframes( currentStat, top_name, traj_name )) {

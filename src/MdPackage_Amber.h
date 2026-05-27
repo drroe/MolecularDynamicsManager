@@ -31,7 +31,7 @@ class MdPackage_Amber : public MdPackage {
     /// Create amber-specific input files
     int CreateInputFiles(Creator const&, Submitter const&, int, int, std::string const&, std::string const&) const;
     /// \return Information on an existing run from output files
-    RunStatus RunCurrentStatus(std::vector<std::string> const&) const;
+    RunStatus RunCurrentStatus(std::vector<std::string> const&, std::string const&) const;
   private:
     static const std::string groupfileName_; ///< REMD group file name TODO option
     static const std::string remddimName_;   ///< REMD remd.dim file name TODO option

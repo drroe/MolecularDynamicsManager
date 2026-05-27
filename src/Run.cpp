@@ -59,13 +59,13 @@ int Run::updateTimeLastModified(std::vector<std::string> const& all_files) {
 }
 
 /** Do all actions necessary to refresh the run. */
-int Run::internalRefresh(MdPackage* mdpackage, Queue const& localQueue, std::vector<std::string> const& all_files) {
+int Run::internalRefresh(MdPackage* mdpackage, Queue const& localQueue, std::vector<std::string> const& all_files, std::string const& default_top) {
   // Update time last modified
   int needs_update = updateTimeLastModified( all_files );
   // Only update run status if files have been modified.
   if (needs_update == 1) {
     Msg("DEBUG: Updating status of '%s'\n", rundir_.c_str());
-    runStat_ = mdpackage->RunCurrentStatus( all_files );
+    runStat_ = mdpackage->RunCurrentStatus( all_files, default_top );
   }
   // DEBUG
   //runStat_.Opts().PrintOpts(false, -1, -1);
@@ -75,7 +75,7 @@ int Run::internalRefresh(MdPackage* mdpackage, Queue const& localQueue, std::vec
 }
 
 /* Setup existing run dir (no changes). Assumes dir exists. */
-int Run::SetupExisting(std::string const& runDir, MdPackage* mdpackage, Queue const& localQueue)
+int Run::SetupExisting(std::string const& runDir, MdPackage* mdpackage, Queue const& localQueue, std::string const& default_top)
 {
   using namespace FileRoutines;
   if (ChangeDir( runDir )) return 1;
@@ -93,7 +93,7 @@ int Run::SetupExisting(std::string const& runDir, MdPackage* mdpackage, Queue co
       Msg("Warning: Run directory '%s' is empty.\n", rundir_.c_str());
     runStat_ = RunStatus(RunStatus::EMPTY);
   } else {
-    if (internalRefresh(mdpackage, localQueue, all_files)) return 1;
+    if (internalRefresh(mdpackage, localQueue, all_files, default_top)) return 1;
 /*
     //Msg("DEBUG: Existing files:\n");
     // Update time last modified
@@ -110,7 +110,7 @@ int Run::SetupExisting(std::string const& runDir, MdPackage* mdpackage, Queue co
 }
 
 /** Refresh existing run. */
-int Run::Refresh(MdPackage* mdpackage, Queue const& localQueue) {
+int Run::Refresh(MdPackage* mdpackage, Queue const& localQueue, std::string const& default_top) {
   using namespace FileRoutines;
   if (ChangeDir( rundir_ )) return 1;
   // Get list of files
@@ -120,7 +120,7 @@ int Run::Refresh(MdPackage* mdpackage, Queue const& localQueue) {
     //Msg("Warning: Run directory '%s' is empty.\n", rundir_.c_str());
     runStat_ = RunStatus(RunStatus::EMPTY);
   } else {
-    if (internalRefresh(mdpackage, localQueue, all_files)) return 1;
+    if (internalRefresh(mdpackage, localQueue, all_files, default_top)) return 1;
 /*
     // Update time last modified
     updateTimeLastModified( all_files );
