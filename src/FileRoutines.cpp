@@ -22,9 +22,12 @@ std::string FileRoutines::AbsPath(std::string const& filenameIn) {
 
   if (std::filesystem::exists(relativePath)) {
     std::filesystem::path canonicalPath = std::filesystem::canonical(relativePath);
+    //Msg("DEBUG: Input='%s' canonical='%s'\n", filenameIn.c_str(), canonicalPath.c_str());
     return canonicalPath.string();
-  } else
+  } else {
+    //Msg("DEBUG: Input='%s' absolute='%s'\n", filenameIn.c_str(), absolutePath.c_str());
     return absolutePath.string();
+  }
 }
 
 // tildeExpansion()
