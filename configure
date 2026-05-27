@@ -5,7 +5,7 @@ SRCDIR=`dirname $0`
 echo "DEBUG: Workdir: $WORKDIR"
 echo "DEBUG: Srcdir : $SRCDIR"
 
-# Configure script for CreateRemdDirs
+# Configure script for MdManager 
 
 Usage() {
   echo "Usage: ./configure <OPTIONS> [gnu | intel | pgi | clang | cray]"
@@ -244,7 +244,7 @@ LDFLAGS="$NETCDFLIB"
 
 # Write config.h
 cat > config.h <<EOF
-# config.h for CreateRemdDirs
+# config.h for MdManager
 # configured using: $CONFIGURECMD
 
 CXX=$CXX

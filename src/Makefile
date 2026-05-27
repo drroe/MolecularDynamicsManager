@@ -4,19 +4,19 @@ include srcfiles
 
 OBJECTS=$(SOURCES:.cpp=.o)
 
-install: CreateRemdDirs ../bin
-	/bin/mv CreateRemdDirs ../bin/
+install: MdManager ../bin
+	/bin/mv MdManager ../bin/
 
 ../bin:
 	mkdir ../bin
 
 uninstall: clean
-	/bin/rm -f ../bin/CreateRemdDirs
+	/bin/rm -f ../bin/MdManager
 
-all: CreateRemdDirs
+all: MdManager
 
-CreateRemdDirs: $(OBJECTS) ../external/readline/libreadline.a
-	$(CXX) -o CreateRemdDirs $(OBJECTS) $(LDFLAGS) ../external/readline/libreadline.a
+MdManager: $(OBJECTS) ../external/readline/libreadline.a
+	$(CXX) -o MdManager $(OBJECTS) $(LDFLAGS) ../external/readline/libreadline.a
 
 .cpp.o:
 	$(CXX) -c $(CXXFLAGS) $(DIRECTIVES) -o $@ $<
@@ -25,7 +25,7 @@ CreateRemdDirs: $(OBJECTS) ../external/readline/libreadline.a
 	cd ../external && $(MAKE) libreadline
 
 clean:
-	/bin/rm -f $(OBJECTS) FindDepend.o CreateRemdDirs
+	/bin/rm -f $(OBJECTS) FindDepend.o MdManager
 
 debug: clean
 	$(MAKE) install CXXFLAGS='-Wall -g'
