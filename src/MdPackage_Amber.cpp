@@ -33,7 +33,9 @@ MdPackage_Amber::MdPackage_Amber(MdPackage_Amber const& rhs) :
 //  override_irest_(rhs.override_irest_),
 //  override_ntx_(rhs.override_ntx_),
   mdinFile_(rhs.mdinFile_),
-  cpin_file_(rhs.cpin_file_)
+  cpin_file_(rhs.cpin_file_),
+  mdin_file_(rhs.mdin_file_),
+  amberhome_(rhs.amberhome_)
 {}
 
 /** ASSIGMENT */
@@ -45,6 +47,8 @@ MdPackage_Amber& MdPackage_Amber::operator=(MdPackage_Amber const& rhs) {
 //  override_irest_ = rhs.override_irest_;
   mdinFile_ = rhs.mdinFile_;
   cpin_file_ = rhs.cpin_file_;
+  mdin_file_ = rhs.mdin_file_;
+  amberhome_ = rhs.amberhome_;
 
   return *this;
 }
@@ -53,6 +57,7 @@ void MdPackage_Amber::OptHelp() {
   Msg("Amber-specific:\n"
       "  MDIN_FILE <file> : File containing additional MD input in namelist format.\n"
       "  CPIN_FILE <file> : CPIN file (constant pH only).\n"
+      "  AMBERHOME <dir>  : Location of Amber.\n"
      );
 }
 
@@ -68,11 +73,11 @@ int MdPackage_Amber::WriteCreatorOptions(TextFile& outfile) const {
 /** print amber-specific options to stdout */
 void MdPackage_Amber::PackageInfo() const {
   Msg("Amber-specific options:\n");
-  Msg(  "  MDIN_FILE : %s\n", mdin_file_.c_str());
+  Msg(  "  MDIN_FILE : '%s'\n", mdin_file_.c_str());
   if (!cpin_file_.empty())
-    Msg("  CPIN_FILE : %s\n", cpin_file_.c_str());
+    Msg("  CPIN_FILE : '%s'\n", cpin_file_.c_str());
   if (!amberhome_.empty())
-    Msg("  AMBERHOME : %s\n", amberhome_.c_str());
+    Msg("  AMBERHOME : '%s'\n", amberhome_.c_str());
 }
 
 /** Parse amber-specific creator option.
@@ -82,6 +87,7 @@ int MdPackage_Amber::ParseCreatorOption(Creator& creatorIn,
                                         std::string const& OPT,
                                         std::string const& VAR)
 {
+  //Msg("DEBUG: ParseCreatorOption: %s %s\n", OPT.c_str(), VAR.c_str());
   if (OPT == "MDIN_FILE") {
     // Reset existing options
     MdOptions packageOpts;
