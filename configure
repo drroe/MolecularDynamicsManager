@@ -1,0 +1,299 @@
+#!/bin/bash
+
+WORKDIR=`pwd`
+SRCDIR=`dirname $0`
+echo "DEBUG: Workdir: $WORKDIR"
+echo "DEBUG: Srcdir : $SRCDIR"
+
+# Configure script for MdManager 
+
+Usage() {
+  echo "Usage: ./configure <OPTIONS> [gnu | intel | pgi | clang | cray]"
+  echo "  OPTIONS:"
+  echo "    --help             : Display this message."
+  echo "    -cray              : Use cray compiler wrappers (cc/CC/ftn)."
+  echo "    --with-netcdf=<DIR>: Use NetCDF in <DIR>"
+  echo "    -nonetcdf          : Disable NetCDF (disables check functionality)."
+  echo "    -nolfs             : Disable large file support."
+  echo ""
+}
+# ------------------------------------------------------------------------------
+
+# Check compiler version.
+CheckCompilerVersion() {
+  c_compiler=$1
+  basecc=`basename $c_compiler`
+  # Use -v
+  cc_version=`$c_compiler -v 2>&1 | grep -E "$basecc |[vV]ersion " \
+                  | sed -e 's/Open64//' -e 's/(.*)//' -e 's/^[a-zA-Z :]* //' -e 's/ .*//'`
+  if [ -z "$cc_version" ] ; then
+     echo "Error: $c_compiler is not well formed or produces unusual version details!"
+     echo "       Check for a CC environment variable."
+     exit 1
+  else
+     echo "  The version of $c_compiler is $cc_version"
+  fi
+  # use '.' as only field delimiter.
+  cc_version=`echo $cc_version | sed -e 's/-/./'`
+  cc_version_major=`echo $cc_version | cut -d'.' -f1`
+  cc_version_minor=`echo $cc_version | cut -d'.' -f2`
+  cc_version_patch=`echo $cc_version | cut -d'.' -f3`
+  #echo "DEBUG: $cc_version $cc_version_major $cc_version_minor $cc_version_patch"
+  #exit 1 # DEBUG
+} 
+
+# If arg is Key=Value, separate into Key and Value
+ParseArg() {
+  KEY=`echo "$1" | awk 'BEGIN{FS = "=";}{print $1;}'`
+  VALUE=`echo "$1" | awk 'BEGIN{FS = "=";}{print $2;}'`
+  eval VALUE=$VALUE
+  if [[ $VALUE = $KEY ]] ; then
+    VALUE=""
+  fi
+}
+
+CompileError() {
+  echo "Compile error: $1" > /dev/stderr
+  if [[ -f "compile.err" ]] ; then
+    cat compile.err > /dev/stderr
+    rm compile.err
+  fi
+  exit 1
+}
+
+# TestCxxProgram {required|optional} <TestName> [<Lib>]
+# Test compile test program testp.cpp
+TestCxxProgram() {
+  echo "$2"
+  COMPILELINE="$CXX $CXXFLAGS -o testp testp.cpp $3"
+  $COMPILELINE > /dev/null 2> compile.err
+  if [[ $? -ne 0 ]] ; then
+    if [ "$1" = 'required' ] ; then
+      CompileError "$COMPILELINE"
+    fi
+    return 1
+  fi
+  ./testp | grep "Testing" > /dev/null
+  if [[ $? -ne 0 ]] ; then
+    if [ "$1" = 'required' ] ; then
+      CompileError "$COMPILELINE"
+    fi
+    return 1
+  fi
+  /bin/rm -f testp.cpp testp compile.err
+  echo "  OK"
+  return 0
+}
+
+TestNetcdf() {
+  if [[ ! -z $NETCDFLIB ]] ; then
+    compile_stat=''
+    if [ $NETCDF_SPECIFIED -eq 1 ] ; then
+      compile_stat='required'
+    else
+      compile_stat='optional'
+    fi
+    cat > testp.cpp <<EOF
+#include <cstdio>
+#include "netcdf.h"
+int main() { printf("Testing\n"); printf("%s\n",nc_strerror(0)); return 0; }
+EOF
+    TestCxxProgram "$compile_stat" "Checking NetCDF" "$NETCDFLIB"
+    if [ $? -ne 0 ] ; then
+      # If we are here netcdf is optional and failed. Disabled it.
+      echo "  NetCDF not found. Disabling."
+      NETCDFLIB=""
+    fi
+  fi
+}
+
+TestCompile() {
+  cat > testp.cpp <<EOF
+#include <cstdio>
+int main() { printf("Testing\n"); return 0; }
+EOF
+  TestCxxProgram 'required' "Testing C++ compiler"
+}
+
+TestCcCompile() {
+  echo "Testing C compiler"
+  cat > testp.c <<EOF
+#include <stdio.h>
+int main() { printf("Testing\n"); return 0; }
+EOF
+  $CC -o testp testp.c > /dev/null 2> compile.err
+  if [ $? -ne 0 ] ; then
+    echo "Compilation with $CC failed."
+    CompileError "$CC -o testp testp.c"
+  fi
+  echo "  OK"
+}
+
+# ------------------------------------------------------------------------------
+if [[ $1 = "--help"  || $1 = "-h" ]] ; then
+  Usage
+  exit 0
+fi
+
+CONFIGURECMD="./configure $*"
+
+KEY=""
+VALUE=""
+echo ""
+
+# Process options
+if [[ ! -z $CXX ]] ; then
+  COMPILER=$CXX
+else
+  COMPILER=g++
+fi
+#NETCDFLIB=-lnetcdf
+NETCDFLIB=
+NETCDF_HOME=""
+NETCDF_SPECIFIED=0
+DIRECTIVES=""
+INCLUDE=""
+LFS="-D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64"
+NO_OPT=0
+DBG_FLAG=""
+
+while [[ ! -z $1 ]] ; do
+  ParseArg $1
+  case "$KEY" in
+    "gnu"    ) COMPILER=g++ ;;
+    "clang"  ) COMPILER=clang++ ;;
+    "intel"  ) COMPILER=icpc ;;
+    "pgi"    ) COMPILER=pgc++ ;;
+    "cray"   ) COMPILER=CC ;;
+    "-cray"     ) echo "Using cray compiler wrapper (CC)." ; USECRAY=1 ;;
+    "-nonetcdf" ) echo "Not using netcdf." ;  NETCDFLIB="" ;;
+    "-nolfs"    ) echo "Disabling large file support." ; LFS="" ;;
+    "-noopt"    ) echo "Disabling optimization." ; NO_OPT=1 ;;
+    "-debug"    ) echo "Enabling compile debug." ; DBG_FLAG=-g ;;
+    "-d"        )
+      echo "Disabling optimization and enabling compile debug."
+      NO_OPT=1
+      DBG_FLAG=-g
+      ;;
+    "--with-netcdf" )
+      NETCDF_SPECIFIED=1
+      INCLUDE="$INCLUDE -I$VALUE/include"
+      NETCDF_HOME="$VALUE"
+      echo "Using NETCDF in $NETCDF_HOME"
+      ;;
+    * ) echo "Error: Unrecognized option $KEY" > /dev/stderr ; exit 1 ;;
+  esac
+  shift
+done
+
+
+# Determine compile flags
+case "$COMPILER" in
+    "g++" )
+      echo "Using gnu compilers"
+      CXX=g++
+      CC=gcc
+      OPTFLAGS="-O3 -Wall"
+      PICFLAG="-fPIC"
+      ;;
+    "clang++" )
+      echo "Using clang compilers"
+      CXX=clang++
+      CC=clang
+      OPTFLAGS="-O3 -Weverything"
+      PICFLAG="-fPIC"
+      ;;
+    "icpc" )
+      echo "Using intel compilers"
+      CXX=icpc
+      CC=icc
+      OPTFLAGS="-O3 -Wall"
+      PICFLAG="-fpic"
+      ;;
+    "pgc++" )
+      echo "Using PGI compilers"
+      CXX=pgc++
+      CC=pgcc
+      OPTFLAGS="-O2"
+      PICFLAG="-fpic"
+      ;;
+    "CC" )
+      echo "Using Cray compilers"
+      CXX=CC
+      CC=cc
+      OPTFLAGS=""
+      PICFLAG="-fpic"
+      ;;
+    * ) echo "Error: No compiler." > /dev/stderr ; exit 1 ;;
+esac
+
+# Use cray wrappers
+if [[ $USECRAY -eq 1 ]] ; then
+  CXX=CC
+  CC=cc
+fi
+
+# Compiler version
+CheckCompilerVersion $CC
+
+# Remove optimizations
+if [[ $NO_OPT -eq 1 ]] ; then
+  OPTFLAGS=""
+fi
+
+# Set up NETCDF linking
+if [[ ! -z $NETCDF_HOME && ! -z $NETCDFLIB ]] ; then
+  # Try to link statically if possible
+  #if [ -f "$NETCDF_HOME/lib/libnetcdf.a" ] ; then
+  #  NETCDFLIB="$NETCDF_HOME/lib/libnetcdf.a"
+  #else
+    NETCDFLIB="-L$NETCDF_HOME/lib $NETCDFLIB"
+  #fi
+fi
+
+# Set up any external libraries
+INCLUDE="$INCLUDE -I../external -I../external/readline"
+
+# Set up compiler flags
+CXXFLAGS="$DBG_FLAG $OPTFLAGS $LFS $INCLUDE $CXXFLAGS"
+CFLAGS="$DBG_FLAG $OPTFLAGS $LFS $INCLUDE $CFLAGS"
+
+# Set version-specific flags
+if [ "$CC" = 'gcc' -a $cc_version_major -ge 14 ] ; then
+  # Needed for readline with gcc >= 14
+  CFLAGS="$CFLAGS -D_DEFAULT_SOURCE -D_XOPEN_SOURCE"
+fi
+
+
+# Test compilers
+TestCompile
+TestCcCompile
+TestNetcdf
+
+# Set up directives
+if [[ ! -z $NETCDFLIB ]] ; then
+  DIRECTIVES="$DIRECTIVES -DHAS_NETCDF"
+fi
+
+# Set up linking flags
+LDFLAGS="$NETCDFLIB"
+
+# Write config.h
+cat > config.h <<EOF
+# config.h for MdManager
+# configured using: $CONFIGURECMD
+
+CXX=$CXX
+CXXFLAGS=$CXXFLAGS
+CFLAGS=$CFLAGS
+CC=$CC
+DIRECTIVES=$DIRECTIVES
+LDFLAGS=$LDFLAGS
+EOF
+
+echo "Cleaning source directories."
+make cleansource > make.log 2>&1
+rm make.log
+
+echo ""
+exit 0
