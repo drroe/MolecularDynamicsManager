@@ -28,6 +28,8 @@ class Submitter {
     /// Set debug level
     void SetDebug(int);
 
+    /// \return Package-specific creator options
+    OptArray const& PackageOpts() const { return package_opts_; }
     /// Print info to stdout
     void Info() const;
     /// Submit job, set job id
@@ -59,5 +61,6 @@ class Submitter {
     std::string mpirun_;    ///< MPI run command if needed
     DependType dependType_; ///< Describes how to handle job dependencies
     Queue localQueue_;      ///< Hold options for queue for a single System
+    OptArray package_opts_;       ///< Hold any potential package-specific options
 };
 #endif

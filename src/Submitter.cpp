@@ -126,6 +126,7 @@ int Submitter::ParseFileOption( OptArray::OptPair const& opair ) {
 
 /** Read queue/job options from a file. */
 int Submitter::ReadOptions(std::string const& input_file) {
+  package_opts_.clear();
   // TODO clear previous options?
   // Read options from input file
   if (CheckExists("Submit options file", input_file)) return 1;
@@ -150,7 +151,9 @@ int Submitter::ReadOptions(std::string const& input_file) {
         ErrorMsg("Could not parse option '%s' = '%s'\n", opair->first.c_str(), opair->second.c_str());
         return 1;
       } else if (ret == 0) {
-        Msg("Warning: Ignoring unrecognized Submit option '%s' = '%s'\n", opair->first.c_str(), opair->second.c_str());
+        // Potentially package-specific
+        package_opts_.AddOpt( *opair );
+        //Msg("Warning: Ignoring unrecognized Submit option '%s' = '%s'\n", opair->first.c_str(), opair->second.c_str());
       }
     }
   } // END loop over file options

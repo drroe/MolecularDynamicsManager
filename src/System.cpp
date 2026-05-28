@@ -192,6 +192,21 @@ int System::FindRuns(QueueArray& queues) {
       return 1;
     }*/
   }
+  // Process MD package-specific options
+  for (OptArray::const_iterator opair = submitter_.PackageOpts().begin();
+                                opair != submitter_.PackageOpts().end(); ++opair)
+  {
+    std::string const& OPT = opair->first;
+    std::string const& VAR = opair->second;
+    // TODO should be submitter specific?
+    int ret = mdInterface_.Package()->ParseCreatorOption(creator_, OPT, VAR);
+    if (ret == -1) {
+      ErrorMsg("Could not parse package-specific option '%s' = '%s'\n", OPT.c_str(), VAR.c_str());
+      return 1;
+    } else if (ret == 0) {
+      Msg("Warning: Ignoring unrecognized option '%s' = '%s'\n", OPT.c_str(), VAR.c_str());
+    }
+  }
   // Set default user if needed
   submitter_.SetDefaultUser();
   // Check submitter options

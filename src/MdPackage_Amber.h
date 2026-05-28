@@ -60,5 +60,6 @@ class MdPackage_Amber : public MdPackage {
     MdinFile mdinFile_;           ///< Used to read input from MDIN
     std::string cpin_file_;       ///< Constant pH input file name
     std::string mdin_file_;       ///< File containing additional namelist input
+    std::string amberhome_;
 };
 #endif

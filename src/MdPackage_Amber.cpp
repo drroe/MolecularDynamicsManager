@@ -71,6 +71,8 @@ void MdPackage_Amber::PackageInfo() const {
   Msg(  "  MDIN_FILE : %s\n", mdin_file_.c_str());
   if (!cpin_file_.empty())
     Msg("  CPIN_FILE : %s\n", cpin_file_.c_str());
+  if (!amberhome_.empty())
+    Msg("  AMBERHOME : %s\n", amberhome_.c_str());
 }
 
 /** Parse amber-specific creator option.
@@ -97,6 +99,8 @@ int MdPackage_Amber::ParseCreatorOption(Creator& creatorIn,
     cpin_file_ = VAR;
     if (FileRoutines::fileExists(cpin_file_))
       cpin_file_ = FileRoutines::tildeExpansion( cpin_file_ );
+  } else if (OPT == "AMBERHOME") {
+    amberhome_ = VAR;
   } else
     return 0;
   return 1;
