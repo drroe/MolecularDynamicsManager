@@ -258,13 +258,23 @@ int Creator::ReadOptions(std::string const& input_file) {
   if (Options.empty()) return 1;
   for (OptArray::const_iterator opair = Options.begin(); opair != Options.end(); ++opair)
   {
-    int ret = ParseFileOption( *opair );
-    if (ret == -1) {
-      ErrorMsg("Could not parse option '%s' = '%s'\n", opair->first.c_str(), opair->second.c_str());
-      return 1;
-    } else if (ret == 0) {
-      // Potentially package-specific
-      package_opts_.AddOpt( *opair );
+    if (opair->first == "INPUT_FILE") {
+      // Try to prevent recursion
+      std::string fn = tildeExpansion( opair->second );
+      if (fn == fname) {
+        ErrorMsg("An input file may not read from itself (%s)\n", opair->second.c_str());
+        return 1;
+      }
+      if (ReadOptions( fn )) return 1;
+    } else {
+      int ret = ParseFileOption( *opair );
+      if (ret == -1) {
+        ErrorMsg("Could not parse option '%s' = '%s'\n", opair->first.c_str(), opair->second.c_str());
+        return 1;
+      } else if (ret == 0) {
+        // Potentially package-specific
+        package_opts_.AddOpt( *opair );
+      }
     }
   } // END loop over options from file
 
