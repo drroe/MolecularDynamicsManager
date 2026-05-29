@@ -8,7 +8,7 @@ class TextFile;
 class Submitter {
   public:
     /// Type describing how to handle dependencies. Sync with DependTypeStr_
-    enum DependType { BATCH = 0, SUBMIT, NO_DEPENDS };
+    enum DependType { BATCH = 0, SUBMIT, NO_DEPENDS, DEPENDS_NOT_SET };
     /// CONSTRUCTOR
     Submitter();
 
@@ -59,6 +59,7 @@ class Submitter {
     std::string user_;      ///< User name
     std::string program_;   ///< Executable name
     std::string mpirun_;    ///< MPI run command if needed
+    std::string Fname_;     ///< File containing the submitter options.
     DependType dependType_; ///< Describes how to handle job dependencies
     Queue localQueue_;      ///< Hold options for queue for a single System
     OptArray package_opts_;       ///< Hold any potential package-specific options

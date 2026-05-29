@@ -15,12 +15,12 @@ Submitter::Submitter() :
   debug_(0),
   nodes_(0),
   procs_(0),
-  dependType_(NO_DEPENDS)
+  dependType_(DEPENDS_NOT_SET)
 {}
 
 /** KEEP IN SYNC WITH DependType */
 const char* Submitter::DependTypeStr_[] = {
-  "BATCH", "SUBMIT", "NONE"
+  "BATCH", "SUBMIT", "NONE", "NOT_SET"
 };
 
 /** Set debug level */
@@ -69,7 +69,7 @@ int Submitter::WriteOptions(TextFile& outfile) const {
     outfile.Printf("PROGRAM %s\n", program_.c_str());
   if (!mpirun_.empty())
     outfile.Printf("MPIRUN %s\n", mpirun_.c_str());
-  if (dependType_ != NO_DEPENDS)
+  if (dependType_ != DEPENDS_NOT_SET)
     outfile.Printf("DEPEND %s\n", DependTypeStr_[dependType_]);
 
   if (localQueue_.WriteQueueOpts( outfile )) return 1;
@@ -132,6 +132,7 @@ int Submitter::ReadOptions(std::string const& input_file) {
   if (CheckExists("Submit options file", input_file)) return 1;
   std::string fname = tildeExpansion( input_file );
   Msg("Reading Submit options from file: %s\n", fname.c_str());
+  Fname_ = FileRoutines::AbsPath(fname);
   TextFile infile;
   OptArray Options = infile.GetOptionsArray(fname, debug_);
   if (Options.empty()) return 1;
@@ -194,7 +195,7 @@ int Submitter::CheckSubmitter() const {
       ErrorMsg("No WALLTIME specified for queue.\n");
       errcount++;
     }
-    if (dependType_ == NO_DEPENDS) {
+    if (dependType_ == DEPENDS_NOT_SET) {
       ErrorMsg("No job dependency type set (DEPEND) for queue.\n");
       errcount++;
     }
@@ -205,7 +206,10 @@ int Submitter::CheckSubmitter() const {
 
 /** Print options to stdout. */
 void Submitter::Info() const {
-  Msg("Submitter options:\n");
+  if (Fname_.empty())
+    Msg("Submitter options:\n");
+  else
+    Msg("Submitter options: '%s'\n", Fname_.c_str());
   Msg(  "  JOBNAME   : %s\n", job_name_.c_str());
   Msg(  "  USER      : %s\n", user_.c_str());
   Msg(  "  DEPEND    : %s\n", DependTypeStr_[dependType_]);
