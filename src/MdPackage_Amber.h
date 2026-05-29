@@ -57,7 +57,7 @@ class MdPackage_Amber : public MdPackage {
     std::string additionalInput_; ///< Hold any additional MDIN input
     //bool override_irest_;         ///< If true do not set irest, use from MDIN
     //bool override_ntx_;           ///< If true do not set ntx, use from MDIN
-    MdinFile mdinFile_;           ///< Used to read input from MDIN
+    MdinFile MD_Input_;           ///< Used to read input from MDIN
     std::string cpin_file_;       ///< Constant pH input file name
     std::string mdin_file_;       ///< File containing additional namelist input
     std::string amberhome_;

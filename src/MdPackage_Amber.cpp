@@ -32,7 +32,7 @@ MdPackage_Amber::MdPackage_Amber(MdPackage_Amber const& rhs) :
   additionalInput_(rhs.additionalInput_),
 //  override_irest_(rhs.override_irest_),
 //  override_ntx_(rhs.override_ntx_),
-  mdinFile_(rhs.mdinFile_),
+  MD_Input_(rhs.MD_Input_),
   cpin_file_(rhs.cpin_file_),
   mdin_file_(rhs.mdin_file_),
   amberhome_(rhs.amberhome_)
@@ -45,7 +45,7 @@ MdPackage_Amber& MdPackage_Amber::operator=(MdPackage_Amber const& rhs) {
   additionalInput_ = rhs.additionalInput_;
 //  override_ntx_ = rhs.override_ntx_;
 //  override_irest_ = rhs.override_irest_;
-  mdinFile_ = rhs.mdinFile_;
+  MD_Input_ = rhs.MD_Input_;
   cpin_file_ = rhs.cpin_file_;
   mdin_file_ = rhs.mdin_file_;
   amberhome_ = rhs.amberhome_;
@@ -166,20 +166,20 @@ int MdPackage_Amber::readMdInput(MdOptions& opts, std::string const& fname) {
 //  override_irest_ = false;
 //  override_ntx_ = false;
   additionalInput_.clear();
-  if (mdinFile_.ParseFile( mdin_fileName )) return 1;
-  if (Debug() > 0) mdinFile_.PrintNamelists();
-/*  std::string valname = mdinFile_.GetNamelistVar("&cntrl", "irest");
+  if (MD_Input_.ParseFile( mdin_fileName )) return 1;
+  if (Debug() > 0) MD_Input_.PrintNamelists();
+/*  std::string valname = MD_Input_.GetNamelistVar("&cntrl", "irest");
   if (!valname.empty()) {
     Msg("Warning: Using 'irest = %s' in '%s'\n", valname.c_str(), mdin_fileName.c_str());
     override_irest_ = true;
   }
-  valname = mdinFile_.GetNamelistVar("&cntrl", "ntx");
+  valname = MD_Input_.GetNamelistVar("&cntrl", "ntx");
   if (!valname.empty()) {
     Msg("Warning: Using 'ntx = %s' in '%s'\n", valname.c_str(), mdin_fileName.c_str());
     override_ntx_ = true;
   }*/
   // Add any &cntrl variables to additionalInput_
-  for (MdinFile::const_iterator nl = mdinFile_.nl_begin(); nl != mdinFile_.nl_end(); ++nl)
+  for (MdinFile::const_iterator nl = MD_Input_.nl_begin(); nl != MD_Input_.nl_end(); ++nl)
   {
     if (nl->first == "&cntrl") {
       unsigned int col = 0;
@@ -352,7 +352,7 @@ const
   //    Dims_[id]->WriteMdin(Indices[id], MDIN);
   MDIN.Printf(" &end\n");
   // Add any additional namelists
-  for (MdinFile::const_iterator nl = mdinFile_.nl_begin(); nl != mdinFile_.nl_end(); ++nl)
+  for (MdinFile::const_iterator nl = MD_Input_.nl_begin(); nl != MD_Input_.nl_end(); ++nl)
     if (nl->first != "&cntrl")
       writeNamelist(MDIN, nl->first, nl->second);
 
