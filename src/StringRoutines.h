@@ -1,6 +1,7 @@
 #ifndef INC_STRINGROUTINES_H
 #define INC_STRINGROUTINES_H
 #include <string>
+#include <vector>
 namespace StringRoutines {
 // Functions for creating fixed-width digit strings.
 int DigitWidth(long int);
@@ -16,5 +17,7 @@ void RemoveTrailingWhitespace(std::string &);
 std::string NoTrailingWhitespace(std::string const&);
 /// Remove all whitespace from a string
 void RemoveAllWhitespace(std::string&);
+/// \return List of integers corresponding to a string with a range
+std::vector<int> ParseRange(std::string const&);
 }
 #endif

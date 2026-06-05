@@ -2,6 +2,7 @@
 #include "Messages.h"
 #include <cmath>
 #include <sstream>
+#include <algorithm> //sort, unique
 
 // DigitWidth()
 /** \return the number of characters necessary to express the given digit. */
@@ -106,3 +107,78 @@ void StringRoutines::RemoveAllWhitespace(std::string& line) {
     line += *it;
   }
 }
+
+/** Given an argument containing numbers separated by "," (concatentation), and 
+  * "-" (number range), construct an ordered list of numbers corresponding to 
+  * the argument. Remove any duplicate numbers.
+  * \return 0 on success, 1 on error.
+  */
+std::vector<int> StringRoutines::ParseRange(std::string const& ArgIn)
+{
+  using namespace Messages;
+  std::string arg;
+  int R[2], upper;
+
+//  Msg("DEBUG: ParseRange(%s)\n", ArgIn.c_str());
+  std::vector<int> rangeList;
+  if (ArgIn.empty()) return rangeList;
+
+  typedef std::vector<std::string> Sarray;
+  // Split range by comma
+  Sarray CommaList;
+  std::string token;
+  for (std::string::const_iterator it = ArgIn.begin(); it != ArgIn.end(); ++it)
+  {
+    if (*it == ',') {
+      if (!token.empty()) {
+        CommaList.push_back( token );
+        token.clear();
+      }
+    } else
+      token += *it;
+  }
+  if (!token.empty()) {
+    CommaList.push_back( token );
+    token.clear();
+  }
+
+  for (Sarray::const_iterator tkn = CommaList.begin(); tkn != CommaList.end(); ++tkn) {
+//    Msg("DEBUG: Token= %s\n", tkn->c_str());
+    // Split token by dash if possible
+    std::size_t pos = tkn->find_first_of("-");
+    if (pos != std::string::npos) {
+      std::string lower = tkn->substr(0,pos);
+      if (!validInteger(lower)) {
+        ErrorMsg("Invalid number starting range: %s\n", lower.c_str());
+        return std::vector<int>();
+      }
+      std::string upper = tkn->substr(pos+1,tkn->size());
+      if (!validInteger(upper)) {
+        ErrorMsg("Invalid number ending range: %s\n", upper.c_str());
+        return std::vector<int>();
+      }
+//      Msg("DEBUG:\tfrom %s to %s\n", lower.c_str(), upper.c_str());
+      int beg = convertToInteger(lower);
+      int end = convertToInteger(upper);
+      for (int ii = beg; ii <= end; ii++)
+        rangeList.push_back( ii );
+    } else {
+      if (!validInteger(*tkn)) {
+        ErrorMsg("Invalid number in range: %s\n", tkn->c_str());
+        return std::vector<int>();
+      }
+      rangeList.push_back( convertToInteger(*tkn) );
+    }
+  }
+  // Remove duplicates by sorting and keeping only unique.
+  std::sort(rangeList.begin(), rangeList.end());
+  std::vector<int>::const_iterator it = std::unique( rangeList.begin(), rangeList.end() );
+  rangeList.resize( it - rangeList.begin() );
+//  Msg("DEBUG: Range:");
+//  for (std::vector<int>::const_iterator it = rangeList.begin(); it != rangeList.end(); ++it)
+//    Msg(" %i", *it);
+//  Msg("\n");
+
+  return rangeList;
+}
+
