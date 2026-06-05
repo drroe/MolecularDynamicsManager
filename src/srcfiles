@@ -34,6 +34,7 @@ ReplicaDimArray.cpp \
 ReplicaDimension.cpp \
 Run.cpp \
 RunStatus.cpp \
+SelectionToken.cpp \
 StringRoutines.cpp \
 Submitter.cpp \
 System.cpp \
