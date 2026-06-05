@@ -1,6 +1,6 @@
 #include "Submitter.h"
 #include "Messages.h"
-#include "FileRoutines.h"
+#include "FileRoutines.h" // CheckExists, tildeExpansion, AbsPath, UserName, ChangePermissions
 #include "TextFile.h"
 #include "StringRoutines.h"
 #include "CommonOptions.h"
@@ -163,15 +163,6 @@ int Submitter::ReadOptions(std::string const& input_file) {
   return 0;
 }
 
-/** Set user if not already set. */
-void Submitter::SetDefaultUser() {
-  // Set user if needed
-  if (user_.empty()) {
-    user_ = NoTrailingWhitespace( UserName() );
-    Msg("Warning: USER not set; setting to '%s'\n", user_.c_str());
-  }
-}
-
 /** Check that submitter is valid. */
 int Submitter::CheckSubmitter() const {
   int errcount = 0;
@@ -196,8 +187,8 @@ int Submitter::CheckSubmitter() const {
       errcount++;
     }
     if (dependType_ == DEPENDS_NOT_SET) {
-      ErrorMsg("No job dependency type set (DEPEND) for queue.\n");
-      errcount++;
+      Msg("Warning: No job dependency type set (DEPEND) for queue.\n");
+      //errcount++;
     }
   }
 
@@ -296,8 +287,16 @@ int Submitter::DoSubmit(std::string& jobid, std::string const& submitScript) con
     jobid.assign(ptr);
     jobfile.Close();
   } else if (localQueue_.QueueType() == Queue::SLURM) {
+    // Set user name if needed.
+    std::string uname;
+    if (!user_.empty())
+      uname = user_;
+    else {
+      uname = NoTrailingWhitespace( UserName() );
+      Msg("Warning: USER not set; setting to '%s'\n", uname.c_str());
+    }
     // -i inidcates reverse sort
-    if (jobfile.OpenPipe("squeue -u " + user_ + " --sort=-i")) return 1;
+    if (jobfile.OpenPipe("squeue -u " + uname + " --sort=-i")) return 1;
     const char* ptr = jobfile.Gets();     // Header with JOBID
     if (ptr == 0) return 1;
     int cols = jobfile.GetColumns(" \t"); // Should be last submitted job
