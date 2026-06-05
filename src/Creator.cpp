@@ -176,7 +176,9 @@ int Creator::ParseFileOption( OptArray::OptPair const& opair ) {
   std::string const& VAR = opair.second;
   if (debug_ > 0)
     Msg("    Option: %s  Variable: %s\n", OPT.c_str(), VAR.c_str());
-  if        (OPT == "CRD_FILE") {
+  if        (OPT == "INPUT_FILE") {
+    Msg("Warning: INPUT_FILE is only processed when read from a Creator options file.\n");
+  } else if (OPT == "CRD_FILE") {
     crd_dir_ = VAR;
   } else if (OPT == "CRD_VEL") {
     if (VAR == "yes")
