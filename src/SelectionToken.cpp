@@ -25,6 +25,16 @@ static inline bool validChar(char cIn)
   return false;
 }
 
+RunStatus::StatusType SelectionToken::strToStatus(std::string const& tokenIn)
+{
+  RunStatus::StatusType ret = RunStatus::UNKNOWN;
+  if (tokenIn == "r" || tokenIn == "run" || tokenIn == "running")
+    ret = RunStatus::IN_PROGRESS;
+  else
+    ErrorMsg("Unrecognized status: %s\n", tokenIn.c_str());
+  return ret;
+}
+
 /** Set up token from selection string. */
 int SelectionToken::SetFromStr(std::string const& strIn)
 {
@@ -34,6 +44,8 @@ int SelectionToken::SetFromStr(std::string const& strIn)
   systemNumbers_.clear();
   runNumbers_.clear();
   statuses_.clear();
+
+  std::vector<bool> statusSelected( (int)RunStatus::COMPLETE, false );
 
   //enum TknType { NONE=0, PROJECT };
   //TknType iToken = NONE;
@@ -49,7 +61,7 @@ int SelectionToken::SetFromStr(std::string const& strIn)
       currentToken.clear();
       std::string::const_iterator jt = it;
       for (; jt != strIn.end(); ++jt) {
-        if (*jt == 's' || *jt == 'r' || isspace(*jt)) break;
+        if (*jt == 's' || *jt == 'r' || *jt == '%' || isspace(*jt)) break;
         if (!validChar(*jt)) return 1;
         currentToken += *jt;
       }
@@ -62,13 +74,97 @@ int SelectionToken::SetFromStr(std::string const& strIn)
       it = jt;
       //iToken = PROJECT;
     }
-
     if (it == strIn.end()) break;
+
+    if (*it == 's') {
+      // Allow either a single number or a range
+      if (advance(it, strIn.end())) {
+        ErrorMsg("Ran out of tokens for 's'.\n");
+        return 1;
+      }
+      currentToken.clear();
+      std::string::const_iterator jt = it;
+      for (; jt != strIn.end(); ++jt) {
+        if (*jt == 'r' || *jt == '%' || isspace(*jt)) break;
+        if (!validChar(*jt)) return 1;
+        currentToken += *jt;
+      }
+      Msg("DEBUG: System token: %s\n", currentToken.c_str());
+      systemNumbers_ = ParseRange( currentToken );
+      if (systemNumbers_.empty()) {
+        ErrorMsg("Could not process system token '%s'\n", currentToken.c_str());
+        return 1;
+      }
+      it = jt;
+    }
+    if (it == strIn.end()) break;
+
+    if (*it == 'r') {
+      // Allow either a single number or a range
+      if (advance(it, strIn.end())) {
+        ErrorMsg("Ran out of tokens for 'r'.\n");
+        return 1;
+      }
+      currentToken.clear();
+      std::string::const_iterator jt = it;
+      for (; jt != strIn.end(); ++jt) {
+        if (*jt == '%' || isspace(*jt)) break;
+        if (!validChar(*jt)) return 1;
+        currentToken += *jt;
+      }
+      Msg("DEBUG: Run token: %s\n", currentToken.c_str());
+      runNumbers_ = ParseRange( currentToken );
+      if (runNumbers_.empty()) {
+        ErrorMsg("Could not process run token '%s'\n", currentToken.c_str());
+        return 1;
+      }
+      it = jt;
+    }
+    if (it == strIn.end()) break;
+
+    if (*it == '%') {
+      // Status query
+      ++it;
+      if (it == strIn.end()) {
+        ErrorMsg("Ran out of tokens for '%%'.\n");
+        return 1;
+      }
+      currentToken.clear();
+      std::string::const_iterator jt = it;
+      for (; jt != strIn.end(); ++jt) {
+        if (isspace(*jt)) break;
+        // TODO check valid
+        currentToken += *jt;
+      }
+      Msg("DEBUG: Status token: %s\n", currentToken.c_str());
+      RunStatus::StatusType rstat = strToStatus( currentToken );
+      if (rstat == RunStatus::UNKNOWN) {
+        return 1;
+      }
+      statusSelected[(int)rstat] = true;
+      //runNumbers_ = ParseRange( currentToken );
+      //if (runNumbers_.empty()) {
+      //  ErrorMsg("Could not process run token '%s'\n", currentToken.c_str());
+      //  return 1;
+      //}
+      it = jt;
+    }
+    if (it == strIn.end()) break;
+
   }
 
   Msg("DEBUG: Project numbers:");
   for (Iarray::const_iterator it = projectNumbers_.begin(); it != projectNumbers_.end(); ++it)
     Msg(" %i", *it);
   Msg("\n");
+  Msg("DEBUG: System numbers:");
+  for (Iarray::const_iterator it = systemNumbers_.begin(); it != systemNumbers_.end(); ++it)
+    Msg(" %i", *it);
+  Msg("\n");
+  Msg("DEBUG: Run numbers:");
+  for (Iarray::const_iterator it = runNumbers_.begin(); it != runNumbers_.end(); ++it)
+    Msg(" %i", *it);
+  Msg("\n");
+
   return 0;
 }

@@ -14,6 +14,8 @@ class SelectionToken {
     /// Set up token from a selection string
     int SetFromStr(std::string const&);
   private:
+    static RunStatus::StatusType strToStatus(std::string const&);
+
     Iarray projectNumbers_; ///< Valid project numbers
     Iarray systemNumbers_;  /// Valid system numbers
     Iarray runNumbers_;     ///< Valid run numbers
