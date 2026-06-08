@@ -108,6 +108,43 @@ void StringRoutines::RemoveAllWhitespace(std::string& line) {
   }
 }
 
+/** Given an argument containing strings separated by "," construct a list of strings.
+  * Remove any duplicates.
+  * \return 0 on success, 1 on error.
+  */
+std::vector<std::string> StringRoutines::CommaSep(std::string const& ArgIn)
+{
+  using namespace Messages;
+
+  typedef std::vector<std::string> Sarray;
+  Sarray CommaList;
+//  Msg("DEBUG: ParseRange(%s)\n", ArgIn.c_str());
+  if (ArgIn.empty()) return CommaList;
+
+  // Split range by comma
+  std::string token;
+  for (std::string::const_iterator it = ArgIn.begin(); it != ArgIn.end(); ++it)
+  {
+    if (*it == ',') {
+      if (!token.empty()) {
+        CommaList.push_back( token );
+        token.clear();
+      }
+    } else
+      token += *it;
+  }
+  if (!token.empty()) {
+    CommaList.push_back( token );
+    token.clear();
+  }
+  // Remove duplicates by sorting and keeping only unique.
+  std::sort(CommaList.begin(), CommaList.end());
+  Sarray::const_iterator it = std::unique( CommaList.begin(), CommaList.end() );
+  CommaList.resize( it - CommaList.begin() );
+
+  return CommaList;
+}
+
 /** Given an argument containing numbers separated by "," (concatentation), and 
   * "-" (number range), construct an ordered list of numbers corresponding to 
   * the argument. Remove any duplicate numbers.
@@ -116,8 +153,8 @@ void StringRoutines::RemoveAllWhitespace(std::string& line) {
 std::vector<int> StringRoutines::ParseRange(std::string const& ArgIn)
 {
   using namespace Messages;
-  std::string arg;
-  int R[2], upper;
+  //std::string arg;
+  //int R[2], upper;
 
 //  Msg("DEBUG: ParseRange(%s)\n", ArgIn.c_str());
   std::vector<int> rangeList;

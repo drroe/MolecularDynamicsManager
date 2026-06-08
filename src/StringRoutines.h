@@ -17,6 +17,8 @@ void RemoveTrailingWhitespace(std::string &);
 std::string NoTrailingWhitespace(std::string const&);
 /// Remove all whitespace from a string
 void RemoveAllWhitespace(std::string&);
+/// \return Array of strings from a comma-separate list
+std::vector<std::string> CommaSep(std::string const&);
 /// \return List of integers corresponding to a string with a range
 std::vector<int> ParseRange(std::string const&);
 }

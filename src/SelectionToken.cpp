@@ -30,6 +30,16 @@ RunStatus::StatusType SelectionToken::strToStatus(std::string const& tokenIn)
   RunStatus::StatusType ret = RunStatus::UNKNOWN;
   if (tokenIn == "r" || tokenIn == "run" || tokenIn == "running")
     ret = RunStatus::IN_PROGRESS;
+  else if (tokenIn == "q" || tokenIn == "que" || tokenIn == "queued")
+    ret = RunStatus::IN_QUEUE;
+  else if (tokenIn == "p" || tokenIn == "pen" || tokenIn == "pending")
+    ret = RunStatus::PENDING;
+  else if (tokenIn == "ready")
+    ret = RunStatus::READY;
+  else if (tokenIn == "c" || tokenIn == "com" || tokenIn == "complete")
+    ret = RunStatus::COMPLETE;
+  else if (tokenIn == "i" || tokenIn == "inc" || tokenIn == "incomplete")
+    ret = RunStatus::INCOMPLETE;
   else
     ErrorMsg("Unrecognized status: %s\n", tokenIn.c_str());
   return ret;
@@ -136,17 +146,17 @@ int SelectionToken::SetFromStr(std::string const& strIn)
         // TODO check valid
         currentToken += *jt;
       }
-      Msg("DEBUG: Status token: %s\n", currentToken.c_str());
-      RunStatus::StatusType rstat = strToStatus( currentToken );
-      if (rstat == RunStatus::UNKNOWN) {
-        return 1;
+      std::vector<std::string> STATS = CommaSep( currentToken );
+      for (std::vector<std::string>::const_iterator st = STATS.begin();
+                                                    st != STATS.end(); ++st)
+      {
+        Msg("DEBUG: Status token: %s\n", st->c_str());
+        RunStatus::StatusType rstat = strToStatus( *st );
+        if (rstat == RunStatus::UNKNOWN) {
+          return 1;
+        }
+        statusSelected[(int)rstat] = true;
       }
-      statusSelected[(int)rstat] = true;
-      //runNumbers_ = ParseRange( currentToken );
-      //if (runNumbers_.empty()) {
-      //  ErrorMsg("Could not process run token '%s'\n", currentToken.c_str());
-      //  return 1;
-      //}
       it = jt;
     }
     if (it == strIn.end()) break;
@@ -165,6 +175,13 @@ int SelectionToken::SetFromStr(std::string const& strIn)
   for (Iarray::const_iterator it = runNumbers_.begin(); it != runNumbers_.end(); ++it)
     Msg(" %i", *it);
   Msg("\n");
+  Msg("DEBUG: Statuses:");
+  for (unsigned int idx = 1; idx < statusSelected.size(); idx++) {
+    if (statusSelected[idx])
+      Msg(" %s", RunStatus::statusString((RunStatus::StatusType)idx));
+  }
+  Msg("\n");
+
 
   return 0;
 }
