@@ -12,7 +12,6 @@ using namespace Messages;
 System::System() :
   debug_(0),
   createOptsFilename_("remd.opts"),
-  submitOptsFilename_("qsub.opts"),
   runDirPrefix_("run"),
   runDirExtWidth_(3),
   c_needs_save_(false),
@@ -26,7 +25,6 @@ System::System(std::string const& top, std::string const& dirname, std::string c
   dirname_(dirname),
   description_(description),
   createOptsFilename_("remd.opts"),
-  submitOptsFilename_("qsub.opts"),
   runDirPrefix_("run"),
   runDirExtWidth_(3),
   c_needs_save_(false),
@@ -41,7 +39,6 @@ System::System(System const& rhs) :
   dirname_(rhs.dirname_),
   description_(rhs.description_),
   createOptsFilename_(rhs.createOptsFilename_),
-  submitOptsFilename_(rhs.submitOptsFilename_),
   runDirPrefix_(rhs.runDirPrefix_),
   runDirExtWidth_(rhs.runDirExtWidth_),
   creator_(rhs.creator_),
@@ -60,7 +57,6 @@ System& System::operator=(System const& rhs) {
   dirname_ = rhs.dirname_;
   description_ = rhs.description_;
   createOptsFilename_ = rhs.createOptsFilename_;
-  submitOptsFilename_ = rhs.submitOptsFilename_;
   runDirPrefix_ = rhs.runDirPrefix_;
   runDirExtWidth_ = rhs.runDirExtWidth_;
   creator_ = rhs.creator_;
@@ -114,20 +110,25 @@ int System::WriteSystemOptions() {
   }
   // ----- Submitter and Queue ---------
   if (s_needs_save_) {
+    if (submitter_.SubmitOptsFilename().empty()) {
+      ErrorMsg("No submit options filename set.\n");
+      return 1;
+    }
+    std::string const& submitOptsFilename = submitter_.SubmitOptsFilename();
     bool write_file = true;
-    if (fileExists( submitOptsFilename_ )) {
-      Msg("Warning: '%s' exists.\n", submitOptsFilename_.c_str());
+    if (fileExists( submitOptsFilename )) {
+      Msg("Warning: '%s' exists.\n", submitOptsFilename.c_str());
       write_file = YesNoPrompt("Overwrite?");
     }
     if (write_file) {
-      Msg("Writing submit options to '%s'\n", submitOptsFilename_.c_str());
+      Msg("Writing submit options to '%s'\n", submitOptsFilename.c_str());
       TextFile outfile;
-      if (outfile.OpenWrite( submitOptsFilename_ )) {
-        ErrorMsg("Opening '%s' for write failed.\n", submitOptsFilename_.c_str());
+      if (outfile.OpenWrite( submitOptsFilename )) {
+        ErrorMsg("Opening '%s' for write failed.\n", submitOptsFilename.c_str());
         return 1;
       }
       if (submitter_.WriteOptions( outfile )) {
-        ErrorMsg("Writing submit options to file '%s' in dir '%s' failed.\n", submitOptsFilename_.c_str(), dirname_.c_str());
+        ErrorMsg("Writing submit options to file '%s' in dir '%s' failed.\n", submitOptsFilename.c_str(), dirname_.c_str());
         return 1;
       }
       outfile.Close();
@@ -182,9 +183,10 @@ int System::FindRuns(QueueArray& queues) {
   if (debug_ > 0) creator_.Info();
 
   // See if submission options exist
-  if (fileExists( submitOptsFilename_ )) {
-    if (submitter_.ReadOptions( submitOptsFilename_ )) {
-      ErrorMsg("Reading submission options file name '%s' failed.\n", submitOptsFilename_.c_str());
+  std::string default_submitOptsFilename = "qsub.opts";
+  if (fileExists( default_submitOptsFilename )) {
+    if (submitter_.ReadOptions( default_submitOptsFilename )) {
+      ErrorMsg("Reading submission options file name '%s' failed.\n", default_submitOptsFilename.c_str());
       return 1;
     }
     /*if (submitter_.CheckOptions()) {

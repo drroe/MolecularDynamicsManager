@@ -39,6 +39,8 @@ class Submitter {
     std::string const& MpiRun() const { return mpirun_; }
     /// \return Local queue
     Queue const& LocalQueue() const { return localQueue_; }
+    /// \return Submitter options file name
+    std::string const& SubmitOptsFilename() const { return Fname_; }
   private:
     /// KEEP IN SYNC WITH DependType
     static const char* DependTypeStr_[];
