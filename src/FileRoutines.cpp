@@ -271,7 +271,7 @@ std::string FileRoutines::Basename(std::string& dirPrefix, std::string const& fu
     dirPrefix.clear();
   } else {
     baseName = fullPathName.substr(found+1);
-    dirPrefix = fullPathName.substr(0, found+1);
+    dirPrefix = fullPathName.substr(0, found);
   }
   return baseName;
 }
