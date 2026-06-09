@@ -47,6 +47,7 @@ class Manager {
   private:
     enum RetType { OK = 0, ERR, QUIT };
 
+    std::string Fname_;     ///< Absolute path to systems file
     ProjectArray projects_; ///< Hold all Projects from the systems file
     std::string topDir_;    ///< The current (top) working directory
     int debug_;             ///< Global debug level

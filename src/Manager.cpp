@@ -24,6 +24,19 @@ int Manager::InitManager(std::string const& CurrentDir, std::string const& input
   }
   topDir_ = CurrentDir;
 
+  Fname_ = FileRoutines::AbsPath( CurrentDir + "/" + inputFileName );
+  // Check if systems file exists. If not, offer to create it.
+  if (!FileRoutines::fileExists( Fname_ )) {
+    Msg("Systems file '%s' does not exist.\n", Fname_.c_str());
+    if (YesNoPrompt("Create it?")) {
+      return 0;
+    } else {
+      ErrorMsg("No systems file.\n");
+      return 1;
+    }
+  }
+
+  // Read an existing systems file
   TextFile input;
   if (input.OpenRead(inputFileName)) {
     ErrorMsg("Could not open manager input file '%s'\n", inputFileName.c_str());
