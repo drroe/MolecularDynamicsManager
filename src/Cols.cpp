@@ -70,6 +70,16 @@ bool Cols::HasKey(std::string const& key) {
   return false;
 }
 
+/** \return true if key is present, do not mark. */
+bool Cols::KeyPresent(std::string const& key) const {
+  for (unsigned int idx = 0; idx != columns_.size(); idx++) {
+    if (!marked_[idx] && key == columns_[idx]) {
+      return true;
+    }
+  }
+  return false;
+}
+
 /** \param ival Set to integer value of unmarked column next to unmarked key (or defaultVal).
   * \return 1 if key was not a valid integer, 0 otherwise.
   */

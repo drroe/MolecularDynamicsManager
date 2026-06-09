@@ -31,6 +31,8 @@ class Manager {
     /// \return True if any systems need saving
     bool SystemsNeedSave() const;
 
+    /// Add a project
+    void AddProject(Project const& p) { projects_.push_back( p ); }
     /// \return the active project
     Project& ActiveProject() { return projects_[activeProjectIdx_]; }
     /// \return the active system of active project

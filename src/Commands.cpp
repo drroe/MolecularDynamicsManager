@@ -24,6 +24,7 @@
 #include "Exec_Save.h"
 #include "Exec_Submit.h"
 #include "Exec_Check.h"
+#include "Exec_Add.h"
 
 using namespace Messages;
 
@@ -119,6 +120,7 @@ void Commands::InitCommands() {
   AddCmd( new Exec_Save(), 1, "save" );
   AddCmd( new Exec_Submit(), 1, "submit" );
   AddCmd( new Exec_Check(), 1, "check" );
+  AddCmd( new Exec_Add(), 1, "add" );
   // Add null ptr to indicate end of command key addresses for readline 
   names_.push_back( 0 );
 }

@@ -16,6 +16,8 @@ class Cols {
     std::string GetKey(std::string const&);
     /// \return true and mark column if key is present
     bool HasKey(std::string const&);
+    /// \return true if key is present
+    bool KeyPresent(std::string const&) const;
     /// Get unmarked column next to specified unmarked key as integer.
     int GetKeyInteger(int&, std::string const&, int);
     /// \return Next unmarked column.

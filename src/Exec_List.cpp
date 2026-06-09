@@ -199,34 +199,39 @@ Exec::RetType Exec_List::Execute(Manager& manager, Cols& args) const {
 
   // -----------------------------------
   if (listMode == ACTIVE) {
-    Msg("Active project/system:\n");
-    if (manager.HasActiveProjectSystem()) {
-      System& activeSystem = manager.ActiveProjectSystem();
-      activeSystem.RefreshCurrentRuns(false);
-      Msg("Project %i: System %i: ", manager.ActiveProjectIdx(), 
-          manager.ActiveProjectSystemIdx());
-      // Count # frames
-      unsigned int total_frames = 0;
-      for (RunArray::const_iterator run = activeSystem.Runs().begin();
-                                    run != activeSystem.Runs().end();
-                                  ++run)
-      {
-        //Msg("DEBUG0 %u\n", run->Stat().CurrentTrajFrames());
-        total_frames += run->Stat().CurrentTrajFrames();
+    if (manager.Projects().empty())
+      Msg("No Projects.\n");
+    else {
+      Project const& activeProject = manager.ActiveProject();
+      Msg("Active project/system: %s\n", activeProject.name());
+      if (manager.HasActiveProjectSystem()) {
+        System& activeSystem = manager.ActiveProjectSystem();
+        activeSystem.RefreshCurrentRuns(false);
+        Msg("Project %i: System %i: ", manager.ActiveProjectIdx(), 
+            manager.ActiveProjectSystemIdx());
+        // Count # frames
+        unsigned int total_frames = 0;
+        for (RunArray::const_iterator run = activeSystem.Runs().begin();
+                                      run != activeSystem.Runs().end();
+                                    ++run)
+        {
+          //Msg("DEBUG0 %u\n", run->Stat().CurrentTrajFrames());
+          total_frames += run->Stat().CurrentTrajFrames();
+        }
+        Msg(" (%u frames) ", total_frames);
+        activeSystem.PrintSummary();
+        int ridx = 0;
+        for (RunArray::const_iterator run = activeSystem.Runs().begin();
+                                      run != activeSystem.Runs().end();
+                                    ++run, ++ridx)
+        {
+          Msg("    %i: ", run->RunIndex());
+          run->RunSummary();
+        }
+      } else {
+        Msg("Project has no systems.\n");
+        return OK;
       }
-      Msg(" (%u frames) ", total_frames);
-      activeSystem.PrintSummary();
-      int ridx = 0;
-      for (RunArray::const_iterator run = activeSystem.Runs().begin();
-                                    run != activeSystem.Runs().end();
-                                  ++run, ++ridx)
-      {
-        Msg("    %i: ", run->RunIndex());
-        run->RunSummary();
-      }
-    } else {
-      ErrorMsg("No active system.\n");
-      return ERR;
     }
     return OK;
   }
