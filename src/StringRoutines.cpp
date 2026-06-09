@@ -1,19 +1,28 @@
 #include "StringRoutines.h"
 #include "Messages.h"
-#include <cmath>
-#include <sstream>
+#include <cmath> // log10
+#include <ctime> // for TimeString()
+#include <sstream> // istringstream, ostringstream
 #include <algorithm> //sort, unique
 
 // DigitWidth()
 /** \return the number of characters necessary to express the given digit. */
 int StringRoutines::DigitWidth(long int numberIn) {
+  double numf;
+  int minusSign = 0;
+
   if (numberIn == 0L) return 1;
-  double numf = (double) numberIn;
+  if (numberIn < 0L) {
+    numf = (double)(-numberIn);
+    minusSign = 1;
+  } else
+    numf = (double) numberIn;
+
   numf = log10( numf );
   ++numf;
   // The cast back to long int implicitly rounds down
   int numi = (int)numf;
-  return numi;
+  return (minusSign + numi);
 }
 
 // integerToString()
@@ -219,3 +228,35 @@ std::vector<int> StringRoutines::ParseRange(std::string const& ArgIn)
   return rangeList;
 }
 
+// NOTE: I think this serves as a great example of how printf syntax is way
+//       easier than iostream stuff (same printf command is only 3 lines). -DRR
+std::string TimeString() {
+  time_t rawtime;
+  time( &rawtime );
+  struct tm timeinfo;
+# ifdef _WIN32
+  localtime_s( &timeinfo, &rawtime );
+# else
+  localtime_r( &rawtime, &timeinfo );
+# endif
+  std::ostringstream oss;
+  oss.fill('0');
+  oss.width(2);
+  oss << std::right << timeinfo.tm_mon+1;
+  oss.put('/');
+  oss.width(2);
+  oss << std::right << timeinfo.tm_mday;
+  oss.put('/');
+  oss.width(2);
+  oss << std::right << timeinfo.tm_year%100;
+  oss.put(' ');
+  oss.width(2);
+  oss << std::right << timeinfo.tm_hour;
+  oss.put(':');
+  oss.width(2);
+  oss << std::right << timeinfo.tm_min;
+  oss.put(':');
+  oss.width(2);
+  oss << std::right << timeinfo.tm_sec;
+  return oss.str();
+}

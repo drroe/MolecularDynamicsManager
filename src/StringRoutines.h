@@ -21,5 +21,7 @@ void RemoveAllWhitespace(std::string&);
 std::vector<std::string> CommaSep(std::string const&);
 /// \return List of integers corresponding to a string with a range
 std::vector<int> ParseRange(std::string const&);
+/// \return String containing time/date
+std::string TimeString();
 }
 #endif
