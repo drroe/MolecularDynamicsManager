@@ -8,7 +8,7 @@
 using namespace Messages;
 using namespace FileRoutines;
 
-static const char* VERSION = "2.00a";
+static const char* VERSION = "0.03";
 
 static void CmdLineHelp() {
   Msg("Command line options:\n"
@@ -57,33 +57,33 @@ static void Defines() {
 int main(int argc, char** argv) {
   Msg("\nMD Director: MD run input creation/job submission/job checking.\n");
   Msg("Version: %s\n", VERSION);
-  Msg("Daniel R. Roe, 2023\n");
+  Msg("Daniel R. Roe, 2026\n");
   // Command line options
   std::string input_file;
   int debug = 0;
-  int start_run = -1;
-  int stop_run = -1;
-  std::string crd_dir;
-  std::string previous_jobid;
-  bool overwrite = false;
-  bool testOnly = false;
-  std::string qfile = "qsub.opts";
+//  int start_run = -1;
+//  int stop_run = -1;
+//  std::string crd_dir;
+//  std::string previous_jobid;
+//  bool overwrite = false;
+//  bool testOnly = false;
+//  std::string qfile = "qsub.opts";
   std::string systems_file = "systems.opts";
   // Get command line options
   for (int iarg = 1; iarg < argc; iarg++) {
     std::string Arg( argv[iarg] );
-    if (Arg == "-i" && iarg+1 != argc)            // Input file for CREATE 
-      input_file.assign( argv[++iarg] );
-    else if (Arg == "-b" && iarg+1 != argc)       // Begin run
-      start_run = atoi(argv[++iarg]);
-    else if (Arg == "-e" && iarg+1 != argc)       // End run
-      stop_run = atoi(argv[++iarg]);
-    else if (Arg == "-c" && iarg+1 != argc)       // Run start coordinates
-      crd_dir.assign( argv[++iarg] );
-    else if (Arg == "-d" && iarg+1 != argc)       // Debug level
+    if (Arg == "-d" && iarg+1 != argc)       // Debug level
       debug = atoi(argv[++iarg]);
-    else if (Arg == "-j" && iarg+1 != argc)       // Previous job id
-      previous_jobid.assign(argv[++iarg]);
+    else if (Arg == "-i" && iarg+1 != argc)        // Input file for CREATE 
+      input_file.assign( argv[++iarg] );
+//    else if (Arg == "-b" && iarg+1 != argc)       // Begin run
+//      start_run = atoi(argv[++iarg]);
+//    else if (Arg == "-e" && iarg+1 != argc)       // End run
+//      stop_run = atoi(argv[++iarg]);
+//    else if (Arg == "-c" && iarg+1 != argc)       // Run start coordinates
+//      crd_dir.assign( argv[++iarg] );
+//    else if (Arg == "-j" && iarg+1 != argc)       // Previous job id
+//      previous_jobid.assign(argv[++iarg]);
     else if (Arg == "-h" || Arg == "--help") {    // Print help and exit
       Help(false);
       return 0;
@@ -96,10 +96,10 @@ int main(int argc, char** argv) {
     } else if (Arg == "--submit-help") {
       Submitter::OptHelp();
       return 0;
-    } else if (Arg == "-t" || Arg == "--test")    // Test, do not submit
-      testOnly = true;
-    else if (Arg == "-O")                         // Overwrite existing files
-      overwrite = true;
+//    } else if (Arg == "-t" || Arg == "--test")    // Test, do not submit
+//      testOnly = true;
+//    else if (Arg == "-O")                         // Overwrite existing files
+//      overwrite = true;
 //    else if (Arg == "--nomdin")                   // Run does not need MDIN
 //      needsMdin = false;
 //    else if (Arg == "--nocheck")                  // Do not check for Analyze/Archive create
@@ -116,8 +116,8 @@ int main(int argc, char** argv) {
 //      ModeEnabled[SUBMIT] = false;
 //    } else if (Arg == "--checkall")               // Check all replicas, not just first.
 //      checkFirst = false;
-    else if (Arg == "-q" && iarg+1 != argc) {       // SUBMIT input file
-      qfile.assign( argv[++iarg] );
+//    else if (Arg == "-q" && iarg+1 != argc) {       // SUBMIT input file
+//      qfile.assign( argv[++iarg] );
 //    } else if (Arg == "--submit") {                 // Enable SUBMIT mode only
 //      ModeEnabled[SUBMIT] = true;
 //      ModeEnabled[CHECK] = false;
