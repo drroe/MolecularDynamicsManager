@@ -39,5 +39,7 @@ std::string UserName();
 std::string Extension(std::string const&);
 /// \return Base file name
 std::string Basename(std::string const&);
+/// \return Base file name, set directory prefix
+std::string Basename(std::string&, std::string const&);
 }
 #endif

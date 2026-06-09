@@ -14,7 +14,10 @@ class Project {
     /// \return Systems
     SystemArray const& Systems() const { return systems_; }
     /// Add system to project
-    void AddSystem(System const& s) { systems_.push_back( s ); }
+    void AddSystem(System const& s) {
+      if (activeSystemIdx_ < 0) activeSystemIdx_ = 0;
+      systems_.push_back( s );
+    }
     /// \return Reference to last system
     System& LastSystem() { return systems_.back(); }
     /// \return project name
