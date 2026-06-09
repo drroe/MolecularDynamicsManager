@@ -2,6 +2,7 @@
 #include "Messages.h"
 #include "TextFile.h"
 #include "FileRoutines.h"
+#include "StringRoutines.h"
 
 using namespace Messages;
 
@@ -29,6 +30,14 @@ int Manager::InitManager(std::string const& CurrentDir, std::string const& input
   if (!FileRoutines::fileExists( Fname_ )) {
     Msg("Systems file '%s' does not exist.\n", Fname_.c_str());
     if (YesNoPrompt("Create it?")) {
+      TextFile output;
+      if (output.OpenWrite( Fname_ )) {
+        ErrorMsg("Could not open '%s' for writing.\n", Fname_.c_str());
+        return 1;
+      }
+      std::string tstring = StringRoutines::TimeString();
+      output.Printf("#MdManager systems file. %s\n", tstring.c_str());
+      output.Close();
       return 0;
     } else {
       ErrorMsg("No systems file.\n");

@@ -230,7 +230,7 @@ std::vector<int> StringRoutines::ParseRange(std::string const& ArgIn)
 
 // NOTE: I think this serves as a great example of how printf syntax is way
 //       easier than iostream stuff (same printf command is only 3 lines). -DRR
-std::string TimeString() {
+std::string StringRoutines::TimeString() {
   time_t rawtime;
   time( &rawtime );
   struct tm timeinfo;
