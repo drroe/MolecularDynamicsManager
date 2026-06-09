@@ -275,3 +275,12 @@ std::string FileRoutines::Basename(std::string& dirPrefix, std::string const& fu
   }
   return baseName;
 }
+
+/** Create new directory */
+int FileRoutines::CreateDir(std::string const& path) {
+  if (!std::filesystem::create_directory( path )) {
+    ErrorMsg("Could not create directory '%s'\n", path.c_str());
+    return 1;
+  }
+  return 0;
+}

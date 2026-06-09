@@ -70,8 +70,10 @@ Exec::RetType Exec_Add::Execute(Manager& manager, Cols& args) const {
       description.assign("DEFAULT SYSTEM DESCRIPTION");
     }
     Msg("\tAdding system %zu : '%s'\n", selectedProject.Systems().size(), description.c_str());
-    selectedProject.AddNewSystem( systemPrefix, systemDir, description );
-    selectedProject.LastSystem().SetDebug( manager.Debug() );
+    if (selectedProject.AddNewSystem( systemPrefix, systemDir, description, manager.Debug() )) {
+      ErrorMsg("Error adding system.\n");
+      return ERR;
+    }
     //if (projects_.back().LastSystem().FindRuns(queues_)) return ERR;
   }
   return OK;

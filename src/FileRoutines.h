@@ -41,5 +41,7 @@ std::string Extension(std::string const&);
 std::string Basename(std::string const&);
 /// \return Base file name, set directory prefix
 std::string Basename(std::string&, std::string const&);
+/// Create directory
+int CreateDir(std::string const&);
 }
 #endif

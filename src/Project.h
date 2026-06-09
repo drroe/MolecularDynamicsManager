@@ -20,7 +20,7 @@ class Project {
     /// Add system to project. Read from file.
     void AddSystem(System const&);
     /// Add system to project. Created.
-    void AddNewSystem(std::string const&, std::string const&, std::string const&);
+    int AddNewSystem(std::string const&, std::string const&, std::string const&, int);
     /// \return Reference to last system
     System& LastSystem() { return systems_.back(); }
     /// \return project name
