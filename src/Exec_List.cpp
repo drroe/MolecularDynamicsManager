@@ -203,7 +203,12 @@ Exec::RetType Exec_List::Execute(Manager& manager, Cols& args) const {
       Msg("No Projects.\n");
     else {
       Project const& activeProject = manager.ActiveProject();
-      Msg("Active project/system: %s\n", activeProject.name());
+      const char* NW;
+      if (activeProject.NeedsWrite())
+        NW = " (needs write)";
+      else
+        NW = "";
+      Msg("Active project/system%s: %s\n", NW, activeProject.name());
       if (manager.HasActiveProjectSystem()) {
         System& activeSystem = manager.ActiveProjectSystem();
         activeSystem.RefreshCurrentRuns(false);

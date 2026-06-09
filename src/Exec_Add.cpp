@@ -26,14 +26,16 @@ static inline std::string getDesc(Cols& args) {
 /** Execute add command */
 Exec::RetType Exec_Add::Execute(Manager& manager, Cols& args) const {
   if (args.HasKey("project")) {
+    // ----- Add project ---------------
     // Description is all remaining arguments.
     std::string description = getDesc(args);
     if (description.empty()) {
       description.assign("DEFAULT PROJECT DESCRIPTION");
     }
     Msg("\tAdding project %zu : '%s'\n", manager.Projects().size(), description.c_str());
-    manager.AddProject( Project(description) );
+    manager.AddNewProject( description );
   } else if (args.HasKey("system")) {
+    // ----- Add System ----------------
     if (manager.Projects().empty()) {
       Msg("Warning: No projects. Create one with 'add project [<description>]'.\n");
       return OK;
@@ -68,7 +70,7 @@ Exec::RetType Exec_Add::Execute(Manager& manager, Cols& args) const {
       description.assign("DEFAULT SYSTEM DESCRIPTION");
     }
     Msg("\tAdding system %zu : '%s'\n", selectedProject.Systems().size(), description.c_str());
-    selectedProject.AddSystem( System(systemPrefix, systemDir, description) );
+    selectedProject.AddNewSystem( systemPrefix, systemDir, description );
     selectedProject.LastSystem().SetDebug( manager.Debug() );
     //if (projects_.back().LastSystem().FindRuns(queues_)) return ERR;
   }

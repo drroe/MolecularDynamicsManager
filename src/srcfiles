@@ -28,6 +28,7 @@ MdOptions.cpp \
 MdPackage_Amber.cpp \
 MdinFile.cpp \
 Messages.cpp \
+Project.cpp \
 Queue.cpp \
 QueueArray.cpp \
 RepIndexArray.cpp \

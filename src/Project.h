@@ -8,16 +8,19 @@ class Project {
   public:
     typedef std::vector<System> SystemArray;
     /// CONSTRUCTOR - Default project
-    Project() : pname_("Default"), activeSystemIdx_(-1) {}
-    /// CONSTRUCTOR - Project with name
-    Project(std::string const& n) : pname_(n), activeSystemIdx_(-1) {}
+    Project() : pname_("Default"), activeSystemIdx_(-1), needsWrite_(false) {}
+    /// CONSTRUCTOR - Project with name. Read in, does not need write.
+    Project(std::string const& n) : pname_(n), activeSystemIdx_(-1), needsWrite_(false) {}
+    /// CONSTRUCTOR - Project with name and write status.
+    Project(std::string const& n, bool w) : pname_(n), activeSystemIdx_(-1), needsWrite_(w) {}
     /// \return Systems
     SystemArray const& Systems() const { return systems_; }
-    /// Add system to project
-    void AddSystem(System const& s) {
-      if (activeSystemIdx_ < 0) activeSystemIdx_ = 0;
-      systems_.push_back( s );
-    }
+    /// \return True if project needs write
+    bool NeedsWrite() const { return needsWrite_; }
+    /// Add system to project. Read from file.
+    void AddSystem(System const&);
+    /// Add system to project. Created.
+    void AddNewSystem(std::string const&, std::string const&, std::string const&);
     /// \return Reference to last system
     System& LastSystem() { return systems_.back(); }
     /// \return project name
@@ -34,5 +37,6 @@ class Project {
     SystemArray systems_; ///< Hold all systems pertaining to this Project
     std::string pname_;   ///< Project name
     int activeSystemIdx_; ///< The index of the active system in Systems array
+    bool needsWrite_;     ///< True if something about the project has changed
 };
 #endif
