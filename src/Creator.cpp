@@ -255,6 +255,7 @@ int Creator::ReadOptions(std::string const& input_file) {
   if (CheckExists("Create options file", input_file)) return 1;
   std::string fname = tildeExpansion( input_file );
   Msg("Reading Create options from file: %s\n", fname.c_str());
+  Fname_ = FileRoutines::AbsPath(fname);
   TextFile infile;
   OptArray Options = infile.GetOptionsArray(fname, debug_);
   if (Options.empty()) return 1;
@@ -432,8 +433,10 @@ int Creator::CheckCreator(std::string const& dirpath) const {
 void Creator::Info() const {
   // This corresponds to usePrevRestartAsRef_
   static const char* ref_prev_str[] = { "single", "previous" };
-
-  Msg("Creator options:\n");
+  if (Fname_.empty())
+    Msg("Creator options:\n");
+  else
+    Msg("Creator options: '%s'\n", Fname_.c_str());
   Msg(    "  Run type              : %s\n", RUNTYPESTR_[runType_]);
   mdopts_.PrintOpts( (runType_ == MD), Dims_.DimIdx(ReplicaDimension::TEMP), Dims_.DimIdx(ReplicaDimension::PH));
   if (runType_ == MD) {

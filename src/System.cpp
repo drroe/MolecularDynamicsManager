@@ -11,7 +11,6 @@ using namespace Messages;
 /** CONSTRUCTOR */
 System::System() :
   debug_(0),
-  createOptsFilename_("remd.opts"),
   runDirPrefix_("run"),
   runDirExtWidth_(3),
   c_needs_save_(false),
@@ -24,7 +23,6 @@ System::System(std::string const& top, std::string const& dirname, std::string c
   topDir_(top),
   dirname_(dirname),
   description_(description),
-  createOptsFilename_("remd.opts"),
   runDirPrefix_("run"),
   runDirExtWidth_(3),
   c_needs_save_(false),
@@ -38,7 +36,6 @@ System::System(System const& rhs) :
   topDir_(rhs.topDir_),
   dirname_(rhs.dirname_),
   description_(rhs.description_),
-  createOptsFilename_(rhs.createOptsFilename_),
   runDirPrefix_(rhs.runDirPrefix_),
   runDirExtWidth_(rhs.runDirExtWidth_),
   creator_(rhs.creator_),
@@ -56,7 +53,6 @@ System& System::operator=(System const& rhs) {
   topDir_ = rhs.topDir_;
   dirname_ = rhs.dirname_;
   description_ = rhs.description_;
-  createOptsFilename_ = rhs.createOptsFilename_;
   runDirPrefix_ = rhs.runDirPrefix_;
   runDirExtWidth_ = rhs.runDirExtWidth_;
   creator_ = rhs.creator_;
@@ -82,25 +78,30 @@ int System::WriteSystemOptions() {
   }
   // ----- Creator and MdPackage -------
   if (c_needs_save_) {
+    if (creator_.CreateOptsFilename().empty()) {
+      ErrorMsg("No create options filename set.\n");
+      return 1;
+    }
+    std::string const& createOptsFilename = creator_.CreateOptsFilename();
     bool write_file = true;
-    if (fileExists( createOptsFilename_ )) {
-      Msg("Warning: '%s' exists.\n", createOptsFilename_.c_str());
+    if (fileExists( createOptsFilename )) {
+      Msg("Warning: '%s' exists.\n", createOptsFilename.c_str());
       write_file = YesNoPrompt("Overwrite?");
     }
     if (write_file) {
-      Msg("Writing create options to '%s'\n", createOptsFilename_.c_str());
+      Msg("Writing create options to '%s'\n", createOptsFilename.c_str());
       TextFile outfile;
-      if (outfile.OpenWrite( createOptsFilename_ )) {
-        ErrorMsg("Opening '%s' for write failed.\n", createOptsFilename_.c_str());
+      if (outfile.OpenWrite( createOptsFilename )) {
+        ErrorMsg("Opening '%s' for write failed.\n", createOptsFilename.c_str());
         return 1;
       }
       if (creator_.WriteOptions( outfile )) {
-        ErrorMsg("Writing creation options to file '%s' in dir '%s' failed.\n", createOptsFilename_.c_str(), dirname_.c_str());
+        ErrorMsg("Writing creation options to file '%s' in dir '%s' failed.\n", createOptsFilename.c_str(), dirname_.c_str());
         return 1;
       }
       if (mdInterface_.HasPackage()) {
         if (mdInterface_.Package()->WriteCreatorOptions( outfile )) {
-          ErrorMsg("Writing package-specific creation options to file '%s' in dir '%s' failed.\n", createOptsFilename_.c_str(), dirname_.c_str());
+          ErrorMsg("Writing package-specific creation options to file '%s' in dir '%s' failed.\n", createOptsFilename.c_str(), dirname_.c_str());
           return 1;
         }
       }
@@ -148,9 +149,10 @@ int System::FindRuns(QueueArray& queues) {
   }
 
   // See if creation options exist
-  if (fileExists( createOptsFilename_ )) {
-    if (creator_.ReadOptions( createOptsFilename_ )) {
-      ErrorMsg("Reading creation options file name '%s' in dir '%s' failed.\n", createOptsFilename_.c_str(), dirname_.c_str());
+  std::string default_createOptsFilename = "remd.opts";
+  if (fileExists( default_createOptsFilename )) {
+    if (creator_.ReadOptions( default_createOptsFilename )) {
+      ErrorMsg("Reading creation options file name '%s' in dir '%s' failed.\n", default_createOptsFilename.c_str(), dirname_.c_str());
       return 1;
     }
   }
@@ -363,9 +365,11 @@ void System::PrintSummary() const {
 
 /** Print system info. */
 void System::PrintInfo() const {
+  if (c_needs_save_) Msg("Info: Creator options are not saved.\n");
   creator_.Info();
   if (mdInterface_.HasPackage())
     mdInterface_.Package()->PackageInfo();
+  if (s_needs_save_) Msg("Info: Submitter options are not saved.\n");
   submitter_.Info();
 }
 

@@ -69,6 +69,8 @@ class Creator {
     std::string const& CrdDir() const { return crd_dir_; }
     /// \return Name of reference coordinates file/directory
     std::string const& RefDir() const { return ref_dir_; }
+    /// \return Creatorr options file name
+    std::string const& CreateOptsFilename() const { return Fname_; }
   private: 
     /// Load a REMD dimension from file
     int LoadDimension(std::string const&);
@@ -92,6 +94,7 @@ class Creator {
     std::string top_file_;        ///< Topology file name
     std::string crd_dir_;         ///< Directory where input coordinates are/MD input coords.
     std::string ref_dir_;         ///< Directory where reference coords are (like crd_dir_)
+    std::string Fname_;           ///< File containing the creator options.
     Sarray dim_files_;            ///< REMD dimension files
     OptArray package_opts_;       ///< Hold any potential package-specific options
 };

@@ -65,7 +65,6 @@ class System {
     std::string topDir_;             ///< Top level directory
     std::string dirname_;            ///< Directory containing runs for the system
     std::string description_;        ///< Description of the system
-    std::string createOptsFilename_; ///< File name for creator options
     std::string runDirPrefix_;       ///< Run directory prefix
     int runDirExtWidth_;             ///< Width of run directory numerical suffix
     Creator creator_;                ///< For creating runs
