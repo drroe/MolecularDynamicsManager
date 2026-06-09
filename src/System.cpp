@@ -17,7 +17,20 @@ System::System() :
   s_needs_save_(false)
 {}
 
-/** CONSTRUCTOR - toplevel dir, dirname, description */
+/** CONSTRUCTOR - toplevel dir, dirname, description, debug. For creating new. */
+System::System(std::string const& top, std::string const& dirname,
+               std::string const& description, int debugIn) :
+  debug_(debugIn),
+  topDir_(top),
+  dirname_(dirname),
+  description_(description),
+  runDirPrefix_("run"),
+  runDirExtWidth_(3),
+  c_needs_save_(true),
+  s_needs_save_(true)
+{}
+
+/** CONSTRUCTOR - toplevel dir, dirname, description. For reading from file. */
 System::System(std::string const& top, std::string const& dirname, std::string const& description) :
   debug_(0),
   topDir_(top),

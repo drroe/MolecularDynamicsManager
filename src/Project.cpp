@@ -36,8 +36,7 @@ int Project::AddNewSystem(std::string const& prefix, std::string const& dir,
       return 1;
     }
   }
-  systems_.push_back( System(prefix, dir, desc) );
-  systems_.back().SetDebug( debug );
+  systems_.push_back( System(prefix, dir, desc, debug) );
   if (activeSystemIdx_ < 0) activeSystemIdx_ = 0;
   needsWrite_ = true;
   // FIXME no need for queues

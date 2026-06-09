@@ -12,7 +12,9 @@ class System {
   public:
     /// CONSTRUCTOR
     System();
-    /// CONSTRUCTOR - top directory, run directory, description
+    /// CONSTRUCTOR - top directory, run directory, description, debug. For creating new.
+    System(std::string const&, std::string const&, std::string const&, int);
+    /// CONSTRUCTOR - top directory, run directory, description. For reading
     System(std::string const&, std::string const&, std::string const&);
     /// COPY CONSTRUCTOR
     System(System const&);
