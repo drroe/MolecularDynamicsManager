@@ -7,16 +7,6 @@ echo "DEBUG: Srcdir : $SRCDIR"
 
 # Configure script for MdManager 
 
-Usage() {
-  echo "Usage: ./configure <OPTIONS> [gnu | intel | pgi | clang | cray]"
-  echo "  OPTIONS:"
-  echo "    --help             : Display this message."
-  echo "    -cray              : Use cray compiler wrappers (cc/CC/ftn)."
-  echo "    --with-netcdf=<DIR>: Use NetCDF in <DIR>"
-  echo "    -nonetcdf          : Disable NetCDF (disables check functionality)."
-  echo "    -nolfs             : Disable large file support."
-  echo ""
-}
 # ------------------------------------------------------------------------------
 
 # Check compiler version.
@@ -129,6 +119,20 @@ EOF
   echo "  OK"
 }
 
+# ------------------------------------------------------------------------------
+Usage() {
+  echo "Usage: ./configure <OPTIONS> [gnu | intel | pgi | clang | cray]"
+  echo "  OPTIONS:"
+  echo "    --help             : Display this message."
+  echo "    -cray              : Use cray compiler wrappers (cc/CC/ftn)."
+  echo "    --with-netcdf=<DIR>: Use NetCDF in <DIR>"
+  echo "    -nonetcdf          : Disable NetCDF (disables check functionality)."
+  echo "    -nolfs             : Disable large file support."
+  echo "    -noopt             : Disable optimizations."
+  echo "    --debug            : Enable debug symbols."
+  echo "    -d                 : Disable optimizations and enable debug symbols."
+  echo ""
+}
 # ------------------------------------------------------------------------------
 if [[ $1 = "--help"  || $1 = "-h" ]] ; then
   Usage
