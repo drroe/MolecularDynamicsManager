@@ -39,6 +39,9 @@ int Project::AddNewSystem(std::string const& prefix, std::string const& dir,
   systems_.push_back( System(prefix, dir, desc, debug) );
   if (activeSystemIdx_ < 0) activeSystemIdx_ = 0;
   needsWrite_ = true;
-  // FIXME no need for queues. Scan the directory
+  // Scan the directory if needed.
+  if (dir_exists) {
+    if (systems_.back().FindRuns()) return 1;
+  }
   return 0;
 }

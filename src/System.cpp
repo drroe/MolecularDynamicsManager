@@ -168,6 +168,7 @@ int System::FindRuns() {
       ErrorMsg("Reading creation options file name '%s' in dir '%s' failed.\n", default_createOptsFilename.c_str(), dirname_.c_str());
       return 1;
     }
+    c_needs_save_ = false;
   }
   // Allocate specific MD package
   if (mdInterface_.AllocatePackage(MdInterface::AMBER, creator_.Debug())) {
@@ -204,6 +205,7 @@ int System::FindRuns() {
       ErrorMsg("Reading submission options file name '%s' failed.\n", default_submitOptsFilename.c_str());
       return 1;
     }
+    s_needs_save_ = false;
     /*if (submitter_.CheckOptions()) {
       ErrorMsg("Checking submission options failed.\n");
       return 1;
