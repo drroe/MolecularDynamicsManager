@@ -30,7 +30,6 @@ MdinFile.cpp \
 Messages.cpp \
 Project.cpp \
 Queue.cpp \
-QueueArray.cpp \
 RepIndexArray.cpp \
 ReplicaDimArray.cpp \
 ReplicaDimension.cpp \

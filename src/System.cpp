@@ -154,7 +154,7 @@ int System::WriteSystemOptions() {
 }
 
 /** Search for run directories in dirname_ */
-int System::FindRuns(QueueArray& queues) {
+int System::FindRuns() {
   using namespace FileRoutines;
   if (ChangeToSystemDir()) {
     ErrorMsg("Could not change to system directory %s/%s\n", topDir_.c_str(), dirname_.c_str());
