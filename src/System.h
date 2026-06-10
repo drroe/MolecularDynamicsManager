@@ -51,7 +51,7 @@ class System {
     /// \return true if System options need to be written
     bool NeedsSave() const { return (c_needs_save_ || s_needs_save_); }
     /// \return System dir name
-    //std::string const& SystemDirName() const { return dirname_; }
+    std::string SystemDirName() const { return topDir_ + "/" + dirname_; }
   private:
     typedef std::vector<std::string> Sarray;
     /// Clear all runs

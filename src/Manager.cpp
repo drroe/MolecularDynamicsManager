@@ -110,6 +110,7 @@ int Manager::ChangeToActiveSystemDir() const {
     Project const& activeProject = projects_[activeProjectIdx_];
     if (activeProject.ActiveSystemIdx() > -1) {
       System const& activeSystem = activeProject.Systems()[activeProject.ActiveSystemIdx()];
+      Msg("  Active system dir: '%s'\n", activeSystem.SystemDirName().c_str());
       if (activeSystem.ChangeToSystemDir()) {
         ErrorMsg("Change to active system directory failed.\n");
         return 1;
