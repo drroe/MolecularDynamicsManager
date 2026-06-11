@@ -55,22 +55,22 @@ Exec::RetType Exec_Add::Execute(Manager& manager, Cols& args) const {
     Project& selectedProject = manager.Set_Project(pidx);
     Msg("\tAdding system to project %i : '%s'\n", pidx, selectedProject.name());
     // Get directory
-    std::string fullSystemPath = args.GetKey("dir");
-    if (fullSystemPath.empty()) {
+    std::string systemDir = args.GetKey("dir");
+    if (systemDir.empty()) {
       ErrorMsg("No system directory specified.\n");
       return ERR;
     }
-    fullSystemPath = FileRoutines::AbsPath( FileRoutines::tildeExpansion(fullSystemPath) );
-    std::string systemPrefix;
-    std::string systemDir = FileRoutines::Basename( systemPrefix, fullSystemPath );
-    Msg("\tSystem directory: %s/%s\n", systemPrefix.c_str(), systemDir.c_str());
+    //fullSystemPath = FileRoutines::AbsPath( FileRoutines::tildeExpansion(fullSystemPath) );
+    //std::string systemPrefix;
+    //std::string systemDir = FileRoutines::Basename( systemPrefix, fullSystemPath );
+    Msg("\tSystem directory: %s/%s\n", manager.topDirName(), systemDir.c_str());
     // Description is all remaining arguments.
     std::string description = getDesc(args);
     if (description.empty()) {
       description.assign("DEFAULT SYSTEM DESCRIPTION");
     }
     Msg("\tAdding system %zu : '%s'\n", selectedProject.Systems().size(), description.c_str());
-    if (selectedProject.AddNewSystem( systemPrefix, systemDir, description, manager.Debug() )) {
+    if (selectedProject.AddNewSystem( manager.TopDirName(), systemDir, description, manager.Debug() )) {
       ErrorMsg("Error adding system.\n");
       return ERR;
     }

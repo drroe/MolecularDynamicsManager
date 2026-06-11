@@ -34,6 +34,8 @@ class Creator {
     int ParseFileOption(OptArray::OptPair const&);
     /// Set MD options; only overwrite current options if not set.
     int SetMdOptions(MdOptions const&);
+    /// Set creator options file name
+    void SetCreatorFilename(std::string const& f) { Fname_ = f; }
     /// \return Package-specific creator options
     OptArray const& PackageOpts() const { return package_opts_; }
 

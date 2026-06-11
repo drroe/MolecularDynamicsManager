@@ -168,7 +168,7 @@ int Manager::ChangeToActiveSystemDir() const {
     Project const& activeProject = projects_[activeProjectIdx_];
     if (activeProject.ActiveSystemIdx() > -1) {
       System const& activeSystem = activeProject.Systems()[activeProject.ActiveSystemIdx()];
-      Msg("  Active system dir: '%s'\n", activeSystem.SystemDirName().c_str());
+      Msg("  Active system dir: '%s'\n", activeSystem.FullSystemPath().c_str());
       if (activeSystem.ChangeToSystemDir()) {
         ErrorMsg("Change to active system directory failed.\n");
         return 1;
@@ -223,6 +223,10 @@ bool Manager::SystemsNeedSave() const {
   for (ProjectArray::const_iterator project = projects_.begin();
                                     project != projects_.end(); ++project)
   {
+    if (project->NeedsWrite()) {
+      Msg("Needs save: Project %li : %s\n", project - projects_.begin(), project->name());
+      n_needs_save++;
+    }
     for (Project::SystemArray::const_iterator system = project->Systems().begin();
                                               system != project->Systems().end(); ++system)
     {

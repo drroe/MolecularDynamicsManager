@@ -92,8 +92,9 @@ int System::WriteSystemOptions() {
   // ----- Creator and MdPackage -------
   if (c_needs_save_) {
     if (creator_.CreateOptsFilename().empty()) {
-      ErrorMsg("No create options filename set.\n");
-      return 1;
+      Msg("Warning: No create options filename set. Using default.\n");
+      creator_.SetCreatorFilename( FileRoutines::AbsPath("./remd.opts") );
+      Msg("Warning: %s\n", creator_.CreateOptsFilename().c_str());
     }
     std::string const& createOptsFilename = creator_.CreateOptsFilename();
     bool write_file = true;
@@ -169,7 +170,8 @@ int System::FindRuns() {
       return 1;
     }
     c_needs_save_ = false;
-  }
+  } else
+    c_needs_save_ = true;
   // Allocate specific MD package
   if (mdInterface_.AllocatePackage(MdInterface::AMBER, creator_.Debug())) {
     ErrorMsg("MD package allocate failed.\n");
@@ -210,7 +212,8 @@ int System::FindRuns() {
       ErrorMsg("Checking submission options failed.\n");
       return 1;
     }*/
-  }
+  } else
+    s_needs_save_ = true;
   // Process MD package-specific options
   for (OptArray::const_iterator opair = submitter_.PackageOpts().begin();
                                 opair != submitter_.PackageOpts().end(); ++opair)

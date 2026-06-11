@@ -50,8 +50,10 @@ class System {
     int ChangeToSystemDir() const;
     /// \return true if System options need to be written
     bool NeedsSave() const { return (c_needs_save_ || s_needs_save_); }
-    /// \return System dir name
-    std::string SystemDirName() const { return topDir_ + "/" + dirname_; }
+    /// \return Full System path
+    std::string FullSystemPath() const { return topDir_ + "/" + dirname_; }
+    /// \return System directory name
+    std::string const& SystemDirName() const { return dirname_; }
     /// \return System description
     std::string const& SystemDescription() const { return description_; }
   private:
