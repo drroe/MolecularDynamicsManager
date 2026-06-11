@@ -13,6 +13,7 @@ void Exec_Save::Help() const {
 
 /** <Command description goes here.> */
 Exec::RetType Exec_Save::Execute(Manager& manager, Cols& args) const {
+  if (manager.SaveManager()) return ERR;
   // Ensure there is an active system
   if (!manager.HasActiveProjectSystem()) {
     ErrorMsg("No active system present.\n");

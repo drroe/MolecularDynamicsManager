@@ -4,6 +4,7 @@
 #include "FileRoutines.h"
 #include "StringRoutines.h"
 
+using namespace MdManager;
 using namespace Messages;
 
 /** CONSTRUCTOR */
@@ -15,6 +16,30 @@ Manager::Manager() :
 /** Set debug levels. */
 void Manager::SetDebug(int debugIn) {
   debug_ = debugIn;
+}
+
+/** Save projects/systems to systems file. */
+int Manager::SaveManager() {
+  if (Fname_.empty()) {
+    ErrorMsg("Manager::SaveManager called with no file name set.\n");
+    return 1;
+  }
+  Msg("DEBUG: file is '%s'\n", Fname_.c_str());
+  for (LineList::const_iterator it = PfileLines_.begin(); it != PfileLines_.end(); ++it)
+  {
+    int pidx = it->ProjIdx();
+    if (pidx > -1)
+      Msg("DEBUG: Project %i (needs write=%i)\n", pidx, (int)projects_[pidx].NeedsWrite());
+    if (!it->Comment().empty())
+      Msg("DEBUG: Comment: %s\n", it->Comment().c_str());
+  }
+  return 0;
+}
+
+/** Add new Project (created). */
+void Manager::AddNewProject(std::string const& desc) {
+  PfileLines_.push_back( ProjectFileLine(projects_.size()) );
+  projects_.push_back( Project(desc, true ) );
 }
 
 /** Initialize with input file. */
@@ -46,6 +71,7 @@ int Manager::InitManager(std::string const& CurrentDir, std::string const& input
   }
 
   // Read an existing systems file
+  PfileLines_.clear();
   TextFile input;
   if (input.OpenRead(inputFileName)) {
     ErrorMsg("Could not open manager input file '%s'\n", inputFileName.c_str());
@@ -70,6 +96,7 @@ int Manager::InitManager(std::string const& CurrentDir, std::string const& input
           for (int col = 2; col < ncols; col++)
             description.append(" " + input.Token(col));
           Msg("Project: %s\n", description.c_str());
+          PfileLines_.push_back( ProjectFileLine( projects_.size() ) );
           projects_.push_back( Project(description) );
         } if ( input.Token(0) == "system" ) {
           // Expect system <system dir>, <description>
@@ -81,8 +108,10 @@ int Manager::InitManager(std::string const& CurrentDir, std::string const& input
             return 1;
           }
           // If no Project yet, add default
-          if (projects_.empty())
+          if (projects_.empty()) {
+            PfileLines_.push_back( ProjectFileLine( projects_.size() ) );
             projects_.push_back( Project() );
+          }
           // All columns beyond the first are description
           std::string description = input.Token(2);
           for (int col = 3; col < ncols; col++)
@@ -93,6 +122,10 @@ int Manager::InitManager(std::string const& CurrentDir, std::string const& input
           projects_.back().LastSystem().SetDebug( debug_ );
           if (projects_.back().LastSystem().FindRuns()) return 1;
         }
+      } else {
+        // Save comment
+        Msg("DEBUG: Saving comment: %s\n", input.Buffer());
+        PfileLines_.push_back( ProjectFileLine( std::string(input.Buffer()) ) );
       }
     }
     ncols = input.GetColumns(SEP);

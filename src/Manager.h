@@ -3,13 +3,14 @@
 #include <string>
 #include <vector>
 #include "Project.h"
+#include "ProjectFileLine.h"
 /// Class to manage runs in Systems
 class Manager {
   public:
     typedef std::vector<Project> ProjectArray;
 
     Manager();
-    /// Initialize with current directory and systems file name
+    /// Initialize with current directory and systems file name. Read projects from file.
     int InitManager(std::string const&, std::string const&);
 
     ProjectArray const& Projects() const { return projects_; }
@@ -30,10 +31,10 @@ class Manager {
     /// \return True if any systems need saving
     bool SystemsNeedSave() const;
 
-    /// Add a project. Read in.
-    void AddProject(Project const& p) { projects_.push_back( p ); }
+    /// Save projects to file
+    int SaveManager();
     /// Add a project. Created. true = write needed
-    void AddNewProject(std::string const& desc) { projects_.push_back( Project(desc, true ) ); }
+    void AddNewProject(std::string const&);
     /// \return the active project
     Project& ActiveProject() { return projects_[activeProjectIdx_]; }
     /// \return the active system of active project
@@ -55,5 +56,8 @@ class Manager {
     std::string topDir_;    ///< The current (top) working directory
     int debug_;             ///< Global debug level
     int activeProjectIdx_;  ///< The index of the active project in Project array
+
+    typedef std::vector<MdManager::ProjectFileLine> LineList;
+    LineList PfileLines_; ///< Hold all project file lines.
 };
 #endif
