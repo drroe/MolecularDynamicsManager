@@ -93,7 +93,7 @@ int System::WriteSystemOptions() {
   if (c_needs_save_) {
     if (creator_.CreateOptsFilename().empty()) {
       Msg("Warning: No create options filename set. Using default.\n");
-      creator_.SetCreatorFilename( FileRoutines::AbsPath("./remd.opts") );
+      creator_.SetCreatorFilename( "remd.opts" );
       Msg("Warning: %s\n", creator_.CreateOptsFilename().c_str());
     }
     std::string const& createOptsFilename = creator_.CreateOptsFilename();
@@ -126,8 +126,9 @@ int System::WriteSystemOptions() {
   // ----- Submitter and Queue ---------
   if (s_needs_save_) {
     if (submitter_.SubmitOptsFilename().empty()) {
-      ErrorMsg("No submit options filename set.\n");
-      return 1;
+      Msg("Warning: No submit options filename set. Using default.\n");
+      submitter_.SetSubmitterFilename( "qsub.opts" );
+      Msg("Warning: %s\n", submitter_.SubmitOptsFilename().c_str());
     }
     std::string const& submitOptsFilename = submitter_.SubmitOptsFilename();
     bool write_file = true;

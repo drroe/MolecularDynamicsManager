@@ -19,6 +19,8 @@ class Submitter {
     int WriteOptions(TextFile&) const;
     /// Parse a single option
     int ParseFileOption(OptArray::OptPair const&);
+    /// Set submitter options file name
+    void SetSubmitterFilename(std::string const& f) { Fname_ = f; }
     /// Read options from a file
     int ReadOptions(std::string const&);
     /// Check that options are valid
