@@ -737,43 +737,49 @@ const
   // Read the '2. CONTROL DATA FOR THE RUN' section of MDOUT
   int readInput = 0;
   const char* SEP = " ,=\r\n";
-  int ncols = mdout.GetColumns(SEP);
-  while (ncols > -1) {
+  const char* ptr = mdout.Gets();
+  while (ptr != 0) {
+    Cols colsIn;
+    if (colsIn.Split( std::string(ptr), SEP )) {
+      ErrorMsg("Could not split line %s\n", ptr);
+      return 1;
+    }
+    unsigned int ncols = colsIn.Ncolumns();
     if (readInput == 0 && ncols >= 2) {
-      if (mdout.Token(0) == "2." && mdout.Token(1) == "CONTROL")
+      if (colsIn[0] == "2." && colsIn[1] == "CONTROL")
         readInput = 1;
-      else if (mdout.Token(0) == "File" && mdout.Token(1) == "Assignments:")
+      else if (colsIn[0] == "File" && colsIn[1] == "Assignments:")
         readInput = 2;
     } else if (readInput == 2) {
       if (ncols == 0)
         readInput = 0;
       else {
-        if (mdout.Token(1) == "PARM:") {
-          topname = mdout.Token(2);
+        if (colsIn[1] == "PARM:") {
+          topname = colsIn[2];
           //Msg("DEBUG: Top: %s\n", topname.c_str());
         }
       }
     } else if (readInput == 1 && ncols > 1) {
-      if (mdout.Token(0) == "3." && mdout.Token(1) == "ATOMIC")
+      if (colsIn[0] == "3." && colsIn[1] == "ATOMIC")
         break;
       else {
-        for (int col = 0; col != ncols - 1; col++) {
-          if (mdout.Token(col) == "nstlim")
-            currentStat.Set_Opts().Set_N_Steps().SetVal( convertToInteger(mdout.Token(col+1)) );
-          else if (mdout.Token(col) == "dt")
-            currentStat.Set_Opts().Set_TimeStep().SetVal( convertToDouble(mdout.Token(col+1)) );
-          else if (mdout.Token(col) == "numexchg")
-            currentStat.Set_Opts().Set_N_Exchanges().SetVal( convertToInteger(mdout.Token(col+1)) );
-          else if (mdout.Token(col) == "ntwx")
-            currentStat.Set_Opts().Set_TrajWriteFreq().SetVal( convertToInteger(mdout.Token(col+1)) );
+        for (unsigned int col = 0; col != ncols - 1; col++) {
+          if (colsIn[col] == "nstlim")
+            currentStat.Set_Opts().Set_N_Steps().SetVal( convertToInteger(colsIn[col+1]) );
+          else if (colsIn[col] == "dt")
+            currentStat.Set_Opts().Set_TimeStep().SetVal( convertToDouble(colsIn[col+1]) );
+          else if (colsIn[col] == "numexchg")
+            currentStat.Set_Opts().Set_N_Exchanges().SetVal( convertToInteger(colsIn[col+1]) );
+          else if (colsIn[col] == "ntwx")
+            currentStat.Set_Opts().Set_TrajWriteFreq().SetVal( convertToInteger(colsIn[col+1]) );
         }
       }
     }
-    ncols = mdout.GetColumns(SEP);
+    ptr = mdout.Gets();
   }
   // Scan down to '5. TIMINGS'
   bool completed = false;
-  const char* ptr = mdout.Gets();
+  ptr = mdout.Gets();
   int current_nsteps = -1;
   while (ptr != 0) {
     std::string ptrstr(ptr);

@@ -4,6 +4,7 @@
 #include "TextFile.h"
 #include "Messages.h"
 #include "OptArray.h"
+#include "Cols.h"
 
 using namespace Messages;
 
@@ -80,19 +81,7 @@ std::string TextFile::GetString() {
   return std::string(buffer_);
 }
 
-int TextFile::GetColumns( const char* SEP ) {
-  if (file_ == 0) return -1;
-  char* ptr = fgets(buffer_, BUF_SIZE-1, (FILE*)file_);
-  if (ptr == 0) return -1;
-  tokens_.clear();
-  ptr = strtok(buffer_, SEP);
-  while (ptr != 0) {
-    tokens_.push_back( std::string(ptr) );
-    ptr = strtok(0, SEP);
-  }
-  return (int)tokens_.size();
-}
-
+/** Print formatted text to file */
 int TextFile::Printf(const char *format, ...) {
   if (file_==0) return 1;
   va_list args;
@@ -103,27 +92,37 @@ int TextFile::Printf(const char *format, ...) {
   return 0;
 }
 
+/** Read in an options file with format 'KEY VAR ...'*/
 OptArray TextFile::GetOptionsArray(std::string const& fname, int debug) {
   OptArray options;
   if (OpenRead( fname )) return options;
   const char* SEP = " \t\n";
-  int ncols = GetColumns( SEP );
-  while (ncols > -1) {
-    if (ncols > 0 && tokens_[0][0] != '#') {
+
+  const char* ptr = Gets();
+  while (ptr != 0) {
+    Cols colsIn;
+    if (colsIn.Split( std::string(ptr), SEP )) {
+      ErrorMsg("Could not split line %s\n", ptr);
+      options.clear();
+      break;
+    }
+
+    unsigned int ncols = colsIn.Ncolumns();
+    if (ncols > 0 && colsIn[0][0] != '#') {
       if (ncols < 2) {
-        ErrorMsg("Malformed input: %s\n", buffer_);
+        ErrorMsg("Malformed input: %s\n", ptr);
         options.clear();
         break;
       }
-      std::string OPT = tokens_[0];
-      std::string VAR = tokens_[1];
-      for (int i = 2; i < ncols; i++)
-        VAR += (" " + tokens_[i]);
+      std::string OPT = colsIn[0];
+      std::string VAR = colsIn[1];
+      for (unsigned int i = 2; i < ncols; i++)
+        VAR += (" " + colsIn[i]);
       if (debug > 0)
         Msg("    File '%s': Option: %s  Variable: %s\n", fname.c_str(), OPT.c_str(), VAR.c_str());
       options.AddOpt( OptArray::OptPair(OPT, VAR) );
     }
-    ncols = GetColumns( SEP );
+    ptr = Gets();
   }
   Close();
   return options;

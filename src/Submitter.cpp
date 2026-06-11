@@ -4,6 +4,7 @@
 #include "TextFile.h"
 #include "StringRoutines.h"
 #include "CommonOptions.h"
+#include "Cols.h"
 #include <cstdlib> // system
 
 using namespace Messages;
@@ -297,11 +298,13 @@ int Submitter::DoSubmit(std::string& jobid, std::string const& submitScript) con
     }
     // -i inidcates reverse sort
     if (jobfile.OpenPipe("squeue -u " + uname + " --sort=-i")) return 1;
-    const char* ptr = jobfile.Gets();     // Header with JOBID
+    const char* ptr = jobfile.Gets(); // Header with JOBID
+    ptr = jobfile.Gets();             // Should be last submitted job 
     if (ptr == 0) return 1;
-    int cols = jobfile.GetColumns(" \t"); // Should be last submitted job
-    if (cols < 1) return 1;
-    jobid.assign( jobfile.Token(0) );
+    Cols jobcols;
+    jobcols.Split( std::string(ptr), " \t" );
+    if (jobcols.Ncolumns() < 1) return 1;
+    jobid.assign( jobcols[0] );
     jobfile.Close();
     if (jobfile.OpenWrite( jobIdFilename )) return 1;
     jobfile.Printf("%s\n", jobid.c_str());

@@ -3,6 +3,7 @@
 #include "TextFile.h"
 #include "FileRoutines.h"
 #include "StringRoutines.h"
+#include "Cols.h"
 
 using namespace MdManager;
 using namespace Messages;
@@ -78,32 +79,38 @@ int Manager::InitManager(std::string const& CurrentDir, std::string const& input
     return 1;
   }
   static const char* SEP = " \n\r";
-  int ncols = input.GetColumns(SEP);
-  while (ncols > -1) {
+  const char* ptr = input.Gets();
+  while (ptr != 0) {
+    Cols colsIn;
+    if (colsIn.Split( std::string(ptr), SEP )) {
+      ErrorMsg("Could not split line: %s\n", ptr);
+      return 1;
+    }
+    unsigned int ncols = colsIn.Ncolumns();
     if (ncols > 0) {
-      if (input.Token(0)[0] != '#') {
-        if ( input.Token(0) == "project" ) {
+      if (colsIn[0][0] != '#') {
+        if ( colsIn[0] == "project" ) {
           // Expect project <name>
           if (ncols < 2) {
             std::string errline;
-            for (int col = 1; col < ncols; col++)
-              errline.append(" "+input.Token(col));
+            for (unsigned int col = 1; col < ncols; col++)
+              errline.append(" " + colsIn[col]);
             ErrorMsg("Not enough columns for 'project': %s\n", errline.c_str());
             return 1;
           }
           // All columns beyond 0 are project name
-          std::string description = input.Token(1);
-          for (int col = 2; col < ncols; col++)
-            description.append(" " + input.Token(col));
+          std::string description = colsIn[1];
+          for (unsigned int col = 2; col < ncols; col++)
+            description.append(" " + colsIn[col]);
           Msg("Project: %s\n", description.c_str());
           PfileLines_.push_back( ProjectFileLine( projects_.size() ) );
           projects_.push_back( Project(description) );
-        } if ( input.Token(0) == "system" ) {
+        } if ( colsIn[0] == "system" ) {
           // Expect system <system dir>, <description>
           if (ncols < 3) {
             std::string errline;
-            for (int col = 1; col < ncols; col++)
-              errline.append(" "+input.Token(col));
+            for (unsigned int col = 1; col < ncols; col++)
+              errline.append(" " + colsIn[col]);
             ErrorMsg("Not enough columns for 'system': %s\n", errline.c_str());
             return 1;
           }
@@ -113,10 +120,10 @@ int Manager::InitManager(std::string const& CurrentDir, std::string const& input
             projects_.push_back( Project() );
           }
           // All columns beyond the first are description
-          std::string description = input.Token(2);
-          for (int col = 3; col < ncols; col++)
-            description.append(" " + input.Token(col));
-          std::string system_dir = FileRoutines::tildeExpansion(input.Token(1));
+          std::string description = colsIn[2];
+          for (unsigned int col = 3; col < ncols; col++)
+            description.append(" " + colsIn[col]);
+          std::string system_dir = FileRoutines::tildeExpansion(colsIn[1]);
           Msg("\nSystem: %s  Description: '%s'\n", system_dir.c_str(), description.c_str());
           projects_.back().AddSystem( System(CurrentDir, system_dir, description) );
           projects_.back().LastSystem().SetDebug( debug_ );
@@ -124,11 +131,11 @@ int Manager::InitManager(std::string const& CurrentDir, std::string const& input
         }
       } else {
         // Save comment
-        Msg("DEBUG: Saving comment: %s\n", input.Buffer());
-        PfileLines_.push_back( ProjectFileLine( std::string(input.Buffer()) ) );
+        Msg("DEBUG: Saving comment: %s\n", ptr);
+        PfileLines_.push_back( ProjectFileLine( std::string(ptr) ) );
       }
     }
-    ncols = input.GetColumns(SEP);
+    ptr = input.Gets();
   }
   input.Close();
   // Change to the active systems directory
