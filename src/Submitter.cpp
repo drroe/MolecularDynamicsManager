@@ -1,6 +1,6 @@
 #include "Submitter.h"
 #include "Messages.h"
-#include "FileRoutines.h" // CheckExists, tildeExpansion, AbsPath, UserName, ChangePermissions
+#include "FileRoutines.h" // CheckExists, tildeExpansion, UserName, ChangePermissions
 #include "TextFile.h"
 #include "StringRoutines.h"
 #include "CommonOptions.h"
@@ -131,18 +131,17 @@ int Submitter::ReadOptions(std::string const& input_file) {
   // TODO clear previous options?
   // Read options from input file
   if (CheckExists("Submit options file", input_file)) return 1;
-  std::string fname = tildeExpansion( input_file );
-  Msg("Reading Submit options from file: %s\n", fname.c_str());
-  Fname_ = FileRoutines::AbsPath(fname);
+  Msg("Reading Submit options from file: %s\n", input_file.c_str());
+  Fname_ = input_file;
   TextFile infile;
-  OptArray Options = infile.GetOptionsArray(fname, debug_);
+  OptArray Options = infile.GetOptionsArray(Fname_, debug_);
   if (Options.empty()) return 1;
   for (OptArray::const_iterator opair = Options.begin(); opair != Options.end(); ++opair)
   {
     if (opair->first == "INPUT_FILE") {
       // Try to prevent recursion
-      std::string fn = tildeExpansion( opair->second );
-      if (fn == fname) {
+      std::string fn = AbsPath(tildeExpansion( opair->second ));
+      if (fn == AbsPath(Fname_)) {
         ErrorMsg("An input file may not read from itself (%s)\n", opair->second.c_str());
         return 1;
       }

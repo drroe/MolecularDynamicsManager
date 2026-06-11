@@ -253,18 +253,17 @@ int Creator::ReadOptions(std::string const& input_file) {
   package_opts_.clear();
   // Read options from input file
   if (CheckExists("Create options file", input_file)) return 1;
-  std::string fname = tildeExpansion( input_file );
-  Msg("Reading Create options from file: %s\n", fname.c_str());
-  Fname_ = FileRoutines::AbsPath(fname);
+  Msg("Reading Create options from file: %s\n", input_file.c_str());
+  Fname_ = input_file;
   TextFile infile;
-  OptArray Options = infile.GetOptionsArray(fname, debug_);
+  OptArray Options = infile.GetOptionsArray(Fname_, debug_);
   if (Options.empty()) return 1;
   for (OptArray::const_iterator opair = Options.begin(); opair != Options.end(); ++opair)
   {
     if (opair->first == "INPUT_FILE") {
       // Try to prevent recursion
-      std::string fn = tildeExpansion( opair->second );
-      if (fn == fname) {
+      std::string fn = AbsPath( tildeExpansion( opair->second ) );
+      if (fn == AbsPath(Fname_)) {
         ErrorMsg("An input file may not read from itself (%s)\n", opair->second.c_str());
         return 1;
       }
