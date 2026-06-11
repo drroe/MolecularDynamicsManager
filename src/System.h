@@ -52,6 +52,8 @@ class System {
     bool NeedsSave() const { return (c_needs_save_ || s_needs_save_); }
     /// \return System dir name
     std::string SystemDirName() const { return topDir_ + "/" + dirname_; }
+    /// \return System description
+    std::string const& SystemDescription() const { return description_; }
   private:
     typedef std::vector<std::string> Sarray;
     /// Clear all runs

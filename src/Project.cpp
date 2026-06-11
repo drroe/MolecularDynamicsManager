@@ -1,6 +1,7 @@
 #include "Project.h"
 #include "Messages.h"
 #include "FileRoutines.h"
+#include "TextFile.h"
 
 using namespace Messages;
 
@@ -42,6 +43,22 @@ int Project::AddNewSystem(std::string const& prefix, std::string const& dir,
   // Scan the directory if needed.
   if (dir_exists) {
     if (systems_.back().FindRuns()) return 1;
+  }
+  return 0;
+}
+
+/** Save project and systems to given file. */
+int Project::SaveSystems(TextFile& outfile) {
+  Msg("Saving project %s\n", pname_.c_str());
+  outfile.Printf("project %s\n", pname_.c_str());
+  // Save systems
+  for (SystemArray::const_iterator it = systems_.begin(); it != systems_.end(); ++it)
+  {
+    Msg("Saving system %li\n", it-systems_.begin());
+    outfile.Printf("system %s %s\n", it->SystemDirName().c_str(), it->SystemDescription().c_str());
+  }
+  if (needsWrite_) {
+    needsWrite_ = false;
   }
   return 0;
 }

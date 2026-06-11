@@ -25,14 +25,32 @@ int Manager::SaveManager() {
     ErrorMsg("Manager::SaveManager called with no file name set.\n");
     return 1;
   }
-  Msg("DEBUG: file is '%s'\n", Fname_.c_str());
-  for (LineList::const_iterator it = PfileLines_.begin(); it != PfileLines_.end(); ++it)
-  {
-    int pidx = it->ProjIdx();
-    if (pidx > -1)
-      Msg("DEBUG: Project %i (needs write=%i)\n", pidx, (int)projects_[pidx].NeedsWrite());
-    if (!it->Comment().empty())
-      Msg("DEBUG: Comment: %s\n", it->Comment().c_str());
+  Msg("DEBUG: Projects file is '%s'\n", Fname_.c_str());
+  bool write_projects_file = true;
+  if (FileRoutines::fileExists( Fname_ )) {
+    if (!YesNoPrompt("Overwrite?")) {
+      write_projects_file = false;
+    }
+  }
+  if (write_projects_file) {
+    TextFile outfile;
+    if (outfile.OpenWrite( Fname_ )) {
+      ErrorMsg("Could not open '%s' for write.\n", Fname_.c_str());
+      return 1;
+    }
+    for (LineList::const_iterator it = PfileLines_.begin(); it != PfileLines_.end(); ++it)
+    {
+      int pidx = it->ProjIdx();
+      if (!it->Comment().empty())
+        outfile.Printf("%s\n", it->Comment().c_str());
+      if (pidx > -1) {
+        Msg("DEBUG: Project %i (needs write=%i)\n", pidx, (int)projects_[pidx].NeedsWrite());
+        if (projects_[pidx].SaveSystems( outfile )) {
+          ErrorMsg("Write of project %i failed.", pidx);
+          return 1;
+        }
+      }
+    }
   }
   return 0;
 }
@@ -132,7 +150,7 @@ int Manager::InitManager(std::string const& CurrentDir, std::string const& input
       } else {
         // Save comment
         Msg("DEBUG: Saving comment: %s\n", ptr);
-        PfileLines_.push_back( ProjectFileLine( std::string(ptr) ) );
+        PfileLines_.push_back( ProjectFileLine( StringRoutines::NoTrailingWhitespace(std::string(ptr)) ) );
       }
     }
     ptr = input.Gets();

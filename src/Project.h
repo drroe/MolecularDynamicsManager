@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include "System.h"
+class TextFile;
 /// Hold Systems pertaining to a single Project
 class Project {
   public:
@@ -33,6 +34,8 @@ class Project {
     void SetActiveSystem(int idx) { activeSystemIdx_ = idx; }
     /// \return Modifiable system corresponding to given index
     System& Set_System(int idx) { return systems_[idx]; }
+    /// Save project/systems if needed
+    int SaveSystems(TextFile&);
   private:
     SystemArray systems_; ///< Hold all systems pertaining to this Project
     std::string pname_;   ///< Project name
